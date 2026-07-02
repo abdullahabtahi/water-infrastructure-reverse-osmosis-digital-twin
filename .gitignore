@@ -7,6 +7,11 @@ __pycache__/
 .ruff_cache/
 .mypy_cache/
 .ipynb_checkpoints/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+*.cover
 
 # --- Virtual environments ---
 .venv/
@@ -14,19 +19,26 @@ __pycache__/
 venv/
 env/
 
-# --- Secrets / local config ---
+# --- Secrets / credentials ---
 .env
 .env.*
 !.env.example
 *.key
+*.pem
+*.p12
+*.pfx
 *-key.json
 service-account*.json
 gcp-credentials*.json
+application_default_credentials.json
 
 # --- OS / editor cruft ---
 .DS_Store
+Thumbs.db
 *.swp
 *~
+.idea/
+*.iml
 
 # --- Node / frontend (future) ---
 node_modules/
@@ -35,6 +47,29 @@ build/
 .next/
 *.log
 npm-debug.log*
+yarn-error.log
+
+# --- Infrastructure as Code (Feature 009 — Terraform) ---
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+*.tfplan
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# --- Docker ---
+*.dockerignore
+
+# --- Jupyter ---
+.jupyter/
+profile_default/
+ipython_config.py
+
+# --- Lock files (not pinned at project level — regenerate from requirements) ---
+# uv.lock is intentionally NOT ignored so the environment is reproducible.
 
 # --- Spec Kit transient state ---
 .specify/feature.json
