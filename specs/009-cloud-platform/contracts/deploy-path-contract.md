@@ -26,6 +26,12 @@ infra/scripts/deploy_service.sh <service-name> <source-dir> <service-account-ema
 - **No secret material as a flag**: the script never accepts a secret value as an argument;
   services that need a secret read it from Secret Manager at runtime (FR-007), and the script
   only wires the **reference** (`--set-secrets`), never a literal value.
+- **Owns Cloud Run IAM bindings too**: since the service itself is gcloud-owned (not
+  Terraform), any `roles/run.invoker` binding on it (e.g. `adk-agent@` needing to invoke
+  `watertap-engine`) is also set imperatively by this script via
+  `gcloud run services add-iam-policy-binding`, immediately after deploy — never declared as a
+  Terraform `google_cloud_run_v2_service_iam_member` resource, for the same ownership-drift
+  reason the service itself isn't.
 
 ## What a consuming feature's plan must supply
 

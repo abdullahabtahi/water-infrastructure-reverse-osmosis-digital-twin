@@ -124,7 +124,7 @@ this file resolves the *mechanism* decisions `/speckit.plan` owns per Constituti
 ## 8. Test strategy for infrastructure (Principle VII analogue)
 
 - **Decision**: Two layers. **Unit**: Terraform native tests (`terraform test`,
-  `infra/tests/bootstrap.tftest.hcl`) run against `terraform plan` output — fast, offline,
+  `infra/terraform/tests/bootstrap.tftest.hcl`) run against `terraform plan` output — fast, offline,
   assert structural properties (e.g. "no `google_service_account_iam_member` grants
   `roles/owner` or `roles/editor`"; "exactly 6 `google_bigquery_dataset` resources exist").
   **Acceptance**: `infra/tests/verify_bootstrap.sh`, a read-only bash script using

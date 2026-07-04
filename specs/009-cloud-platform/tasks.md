@@ -37,10 +37,10 @@ Structure) — no `src/`/`backend/` split; this feature ships no application cod
 
 **Purpose**: Confirm prerequisites and lay out the directory skeleton every later phase fills in.
 
-- [ ] T001 Create the `infra/` directory skeleton: `infra/terraform/`, `infra/environments/`, `infra/scripts/`, `infra/tests/`
-- [ ] T002 [P] Confirm billing is enabled on `spatial-cat-489006-a4` (`gcloud billing projects describe spatial-cat-489006-a4`); if not enabled, link a billing account before continuing (blocks everything downstream — not a task to skip)
-- [ ] T003 [P] Create `infra/environments/dev.tfvars.example` (placeholder `project_id`, `region`, `alert_email`; real `dev.tfvars` stays gitignored per the existing `.gitignore`)
-- [ ] T004 [P] Create `infra/README.md` — short orientation note: this is the Oceanus cloud-platform bootstrap (Feature 009), points to `specs/009-cloud-platform/quickstart.md` as the authoritative runbook
+- [X] T001 Create the `infra/` directory skeleton: `infra/terraform/`, `infra/environments/`, `infra/scripts/`, `infra/tests/`
+- [X] T002 [P] Confirm billing is enabled on `spatial-cat-489006-a4` (`gcloud billing projects describe spatial-cat-489006-a4`); if not enabled, link a billing account before continuing (blocks everything downstream — not a task to skip)
+- [X] T003 [P] Create `infra/environments/dev.tfvars.example` (placeholder `project_id`, `region`, `alert_email`; real `dev.tfvars` stays gitignored per the existing `.gitignore`)
+- [X] T004 [P] Create `infra/README.md` — short orientation note: this is the Oceanus cloud-platform bootstrap (Feature 009), points to `specs/009-cloud-platform/quickstart.md` as the authoritative runbook
 
 ---
 
@@ -51,14 +51,14 @@ resource can exist before its API is enabled. This phase MUST complete before an
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T005 Write `infra/scripts/bootstrap.sh --phase0`: enable `serviceusage`, `cloudresourcemanager`, `iam`, `storage` APIs and create the GCS state bucket `gs://spatial-cat-489006-a4-tfstate` (versioned, `us-central1`, uniform bucket-level access); must no-op safely if the bucket already exists (FR-013)
+- [X] T005 Write `infra/scripts/bootstrap.sh --phase0`: enable `serviceusage`, `cloudresourcemanager`, `iam`, `storage` APIs and create the GCS state bucket `gs://spatial-cat-489006-a4-tfstate` (versioned, `us-central1`, uniform bucket-level access); must no-op safely if the bucket already exists (FR-013)
 - [ ] T006 Run `infra/scripts/bootstrap.sh --phase0` against `spatial-cat-489006-a4`; confirm the state bucket exists (`gcloud storage buckets describe gs://spatial-cat-489006-a4-tfstate`)
-- [ ] T007 Create `infra/terraform/main.tf` — `google` provider (`~> 6.x`) pinned to `spatial-cat-489006-a4`/`us-central1`, and the `gcs` backend block (bucket name from T006)
-- [ ] T008 Create `infra/terraform/variables.tf` — `project_id`, `region` (default `us-central1`), `billing_account_id`, `alert_email`, `environment` (default `dev`), per `contracts/terraform-module-interface.md`
-- [ ] T009 Create `infra/terraform/outputs.tf` — skeleton output blocks for `bigquery_dataset_ids`, `pubsub_topic_id`, `service_account_emails`, `artifact_registry_repo`, `secret_ids` (no `healthcheck_url` — see contract note on Cloud Run ownership)
-- [ ] T010 Create `infra/terraform/apis.tf` — all 16 `google_project_service` resources from `research.md` §3 (excludes `dataflow.googleapis.com`, `bigquerydatatransfer.googleapis.com` by design)
-- [ ] T011 Run `terraform init -backend-config="bucket=spatial-cat-489006-a4-tfstate"` in `infra/terraform/`; confirm success
-- [ ] T012 [P] Write `infra/tests/bootstrap.tftest.hcl` skeleton with a first assertion — exactly 16 `google_project_service` resources planned; run `terraform test`, confirm it currently FAILS (no `terraform apply` has run yet — expected red)
+- [X] T007 Create `infra/terraform/main.tf` — `google` provider (`~> 6.x`) pinned to `spatial-cat-489006-a4`/`us-central1`, and the `gcs` backend block (bucket name from T006)
+- [X] T008 Create `infra/terraform/variables.tf` — `project_id`, `region` (default `us-central1`), `billing_account_id`, `alert_email`, `environment` (default `dev`), per `contracts/terraform-module-interface.md`
+- [X] T009 Create `infra/terraform/outputs.tf` — skeleton output blocks for `bigquery_dataset_ids`, `pubsub_topic_id`, `service_account_emails`, `artifact_registry_repo`, `secret_ids` (no `healthcheck_url` — see contract note on Cloud Run ownership)
+- [X] T010 Create `infra/terraform/apis.tf` — all 17 `google_project_service` resources from `research.md` §3 (excludes `dataflow.googleapis.com`, `bigquerydatatransfer.googleapis.com` by design)
+- [X] T011 Run `terraform init -backend-config="bucket=spatial-cat-489006-a4-tfstate"` in `infra/terraform/`; confirm success
+- [X] T012 [P] Write `infra/terraform/tests/bootstrap.tftest.hcl` skeleton with a first assertion — exactly 17 `google_project_service` resources planned; run `terraform test`, confirm it currently FAILS (no `terraform apply` has run yet — expected red)
 
 **Checkpoint**: Terraform is initialized and can plan against the live project. User story work can now begin.
 
@@ -74,21 +74,21 @@ checklist, with zero undocumented manual steps.
 
 ### Tests for User Story 1 (write first, confirm they FAIL before implementation)
 
-- [ ] T013 [P] [US1] Add assertions to `infra/tests/bootstrap.tftest.hcl`: exactly 6 `google_bigquery_dataset` resources, each `location = "us-central1"`
-- [ ] T014 [P] [US1] Add assertion to `infra/tests/bootstrap.tftest.hcl`: the `ro-readings` `google_pubsub_topic` resource exists
-- [ ] T015 [P] [US1] Write `infra/tests/verify_bootstrap.sh` skeleton with SC-001 checks (project exists, 6 datasets exist, topic exists, 3 buckets exist, registry exists); run it now and confirm it FAILS (nothing provisioned yet)
+- [X] T013 [P] [US1] Add assertions to `infra/terraform/tests/bootstrap.tftest.hcl`: exactly 6 `google_bigquery_dataset` resources, each `location = "us-central1"`
+- [X] T014 [P] [US1] Add assertion to `infra/terraform/tests/bootstrap.tftest.hcl`: the `ro-readings` `google_pubsub_topic` resource exists
+- [X] T015 [P] [US1] Write `infra/tests/verify_bootstrap.sh` skeleton with SC-001 checks (project exists, 6 datasets exist, topic exists, 3 buckets exist, registry exists); run it now and confirm it FAILS (nothing provisioned yet)
 
 ### Implementation for User Story 1
 
-- [ ] T016 [P] [US1] Create `infra/terraform/bigquery.tf` — 6 datasets (`ro_raw`, `ro_curated`, `ro_serving`, `ro_simulation`, `ro_forecasts`, `ro_embeddings`), each labeled `product = "oceanus"`
-- [ ] T017 [P] [US1] Create `infra/terraform/pubsub.tf` — `ro-readings` topic + a dead-letter subscription placeholder
-- [ ] T018 [P] [US1] Create `infra/terraform/storage.tf` — 3 buckets (`{project}-raw-data`, `{project}-dataform`, `{project}-artifacts`)
-- [ ] T019 [P] [US1] Create `infra/terraform/artifact_registry.tf` — `ro-digital-twin` Docker repo in `us-central1`
-- [ ] T020 [US1] Run `terraform plan` then `terraform apply` (T016–T019 resources only) against `spatial-cat-489006-a4`; resolve any errors (depends on T016–T019)
-- [ ] T021 [US1] Re-run `terraform test` — confirm the T013/T014 assertions now PASS
-- [ ] T022 [US1] Re-run `infra/tests/verify_bootstrap.sh` — confirm the T015 checks now PASS
-- [ ] T023 [US1] Extend `infra/scripts/bootstrap.sh` to a full orchestration: phase 0 (T005) + `terraform init/plan/apply` in one idempotent entry point, so `quickstart.md` steps 1–4 are a single command for a fresh operator
-- [ ] T024 [US1] Run `infra/scripts/bootstrap.sh` twice in a row; confirm the second run's `terraform plan` shows zero changes (idempotency, FR-013)
+- [X] T016 [P] [US1] Create `infra/terraform/bigquery.tf` — 6 datasets (`ro_raw`, `ro_curated`, `ro_serving`, `ro_simulation`, `ro_forecasts`, `ro_embeddings`), each labeled `product = "oceanus"`
+- [X] T017 [P] [US1] Create `infra/terraform/pubsub.tf` — `ro-readings` topic + a dead-letter subscription placeholder
+- [X] T018 [P] [US1] Create `infra/terraform/storage.tf` — 3 buckets (`{project}-raw-data`, `{project}-dataform`, `{project}-artifacts`)
+- [X] T019 [P] [US1] Create `infra/terraform/artifact_registry.tf` — `ro-digital-twin` Docker repo in `us-central1`
+- [X] T020 [US1] Run `terraform plan` then `terraform apply` (T016–T019 resources only) against `spatial-cat-489006-a4`; resolve any errors (depends on T016–T019)
+- [X] T021 [US1] Re-run `terraform test` — confirm the T013/T014 assertions now PASS
+- [X] T022 [US1] Re-run `infra/tests/verify_bootstrap.sh` — confirm the T015 checks now PASS
+- [X] T023 [US1] Extend `infra/scripts/bootstrap.sh` to a full orchestration: phase 0 (T005) + `terraform init/plan/apply` in one idempotent entry point, so `quickstart.md` steps 1–4 are a single command for a fresh operator
+- [X] T024 [US1] Run `infra/scripts/bootstrap.sh` twice in a row; confirm the second run's `terraform plan` shows zero changes (idempotency, FR-013)
 
 **Checkpoint**: Datasets, topic, storage, and registry are reproducible from documented steps — US1 independently complete.
 
@@ -104,19 +104,19 @@ started with a missing secret fails fast.
 
 ### Tests for User Story 2 (write first, confirm they FAIL before implementation)
 
-- [ ] T025 [P] [US2] Add assertion to `infra/tests/bootstrap.tftest.hcl`: no IAM binding in the plan grants `roles/owner` or `roles/editor` to any `google_service_account`
-- [ ] T026 [P] [US2] Add assertion to `infra/tests/bootstrap.tftest.hcl`: each of the 4 service accounts' bindings reference a specific dataset/service resource ID, never the bare project
-- [ ] T027 [P] [US2] Add checks to `infra/tests/verify_bootstrap.sh`: live IAM-policy audit (SC-002) and a repository secret-scan (SC-003 — grep for common credential patterns across tracked files and `git log -p`); run now and confirm FAIL (no `iam.tf`/`secrets.tf` yet)
+- [X] T025 [P] [US2] Add assertion to `infra/terraform/tests/bootstrap.tftest.hcl`: no IAM binding in the plan grants `roles/owner` or `roles/editor` to any `google_service_account`
+- [X] T026 [P] [US2] Add assertion to `infra/terraform/tests/bootstrap.tftest.hcl`: each of the 4 service accounts' bindings reference a specific dataset/service resource ID, never the bare project
+- [X] T027 [P] [US2] Add checks to `infra/tests/verify_bootstrap.sh`: live IAM-policy audit (SC-002) and a repository secret-scan (SC-003 — grep for common credential patterns across tracked files and `git log -p`); run now and confirm FAIL (no `iam.tf`/`secrets.tf` yet)
 
 ### Implementation for User Story 2
 
-- [ ] T028 [US2] Create `infra/terraform/iam.tf` — 4 service accounts (`watertap-engine@`, `serving-api@`, `adk-agent@`, `dataform@`) with bindings exactly matching `contracts/iam-role-matrix.md`
-- [ ] T029 [US2] Append operator bindings to `infra/terraform/iam.tf` — `roles/bigquery.jobUser`, `roles/run.developer`, `roles/logging.viewer` for `abdullahabtahi21@gmail.com` (day-to-day; no standing `roles/owner` encoded here)
-- [ ] T030 [P] [US2] Create `infra/terraform/secrets.tf` — 2 `google_secret_manager_secret` containers (`eia-api-key`, `watertap-engine-url`), deliberately no `secret_version` resource
-- [ ] T031 [P] [US2] Write `infra/scripts/set_secret.sh` — pipes stdin directly into `gcloud secrets versions add --data-file=-`; the value must never be written to disk or echoed
-- [ ] T032 [US2] Run `terraform apply` (T028–T030 resources); resolve any errors (depends on T028, T029, T030)
-- [ ] T033 [US2] Re-run `terraform test` and `infra/tests/verify_bootstrap.sh` IAM/secret checks — confirm PASS
-- [ ] T034 [US2] Add a note to `contracts/iam-role-matrix.md` confirming FR-018 (untrusted-content isolation) is structurally satisfied: `adk-agent@` holds only `bigquery.dataViewer` (read) + a single scoped `run.invoker` — no write/invoke-privileged role exists that untrusted RAG content could ever reach
+- [X] T028 [US2] Create `infra/terraform/iam.tf` — 4 service accounts (`watertap-engine@`, `serving-api@`, `adk-agent@`, `dataform@`) with bindings exactly matching `contracts/iam-role-matrix.md`
+- [X] T029 [US2] Append operator bindings to `infra/terraform/iam.tf` — `roles/bigquery.jobUser`, `roles/run.developer`, `roles/logging.viewer` for `abdullahabtahi21@gmail.com` (day-to-day; no standing `roles/owner` encoded here)
+- [X] T030 [P] [US2] Create `infra/terraform/secrets.tf` — 2 `google_secret_manager_secret` containers (`eia-api-key`, `watertap-engine-url`), deliberately no `secret_version` resource
+- [X] T031 [P] [US2] Write `infra/scripts/set_secret.sh` — pipes stdin directly into `gcloud secrets versions add --data-file=-`; the value must never be written to disk or echoed
+- [X] T032 [US2] Run `terraform apply` (T028–T030 resources); resolve any errors (depends on T028, T029, T030)
+- [X] T033 [US2] Re-run `terraform test` and `infra/tests/verify_bootstrap.sh` IAM/secret checks — confirm PASS
+- [X] T034 [US2] Add a note to `contracts/iam-role-matrix.md` confirming FR-018 (untrusted-content isolation) is structurally satisfied: `adk-agent@` holds only `bigquery.dataViewer` (read) + a single scoped `run.invoker` — no write/invoke-privileged role exists that untrusted RAG content could ever reach
 
 **Checkpoint**: Least-privilege IAM and secret containers are verified — US2 independently complete, no dependency on US1's completion (can run in parallel once Phase 2 is done).
 
@@ -132,15 +132,15 @@ service exists once US4 deploys one — see Dependencies note below).
 
 ### Tests for User Story 3 (write first, confirm they FAIL before implementation)
 
-- [ ] T035 [P] [US3] Add assertion to `infra/tests/bootstrap.tftest.hcl`: `google_billing_budget` amount = $50, `threshold_rules` = [40%, 100%]
-- [ ] T036 [P] [US3] Add check to `infra/tests/verify_bootstrap.sh`: budget + notification channel exist and match documented thresholds (SC-005); run now and confirm FAIL (no `budget.tf` yet)
+- [X] T035 [P] [US3] Add assertion to `infra/terraform/tests/bootstrap.tftest.hcl`: `google_billing_budget` amount = $50, `threshold_rules` = [40%, 100%]
+- [X] T036 [P] [US3] Add check to `infra/tests/verify_bootstrap.sh`: budget + notification channel exist and match documented thresholds (SC-005); run now and confirm FAIL (no `budget.tf` yet)
 
 ### Implementation for User Story 3
 
-- [ ] T037 [US3] Create `infra/terraform/budget.tf` — `google_billing_budget` ($50/mo, 40%/100% threshold rules) + `google_monitoring_notification_channel` (email, from the `alert_email` variable)
-- [ ] T038 [US3] Run `terraform apply` (T037); resolve any errors (depends on T037, requires `billing_account_id` variable value)
-- [ ] T039 [US3] Re-run `terraform test` and `infra/tests/verify_bootstrap.sh` budget checks — confirm PASS
-- [ ] T040 [US3] Confirm `quickstart.md`'s "Cost posture" section figures ($20 warn / $50 cap, notification-only, no hard stop) match what was actually applied in T037 — fix either the doc or the config if they've drifted
+- [X] T037 [US3] Create `infra/terraform/budget.tf` — `google_billing_budget` ($50/mo, 40%/100% threshold rules) + `google_monitoring_notification_channel` (email, from the `alert_email` variable)
+- [X] T038 [US3] Run `terraform apply` (T037); resolve any errors (depends on T037, requires `billing_account_id` variable value)
+- [X] T039 [US3] Re-run `terraform test` and `infra/tests/verify_bootstrap.sh` budget checks — confirm PASS
+- [X] T040 [US3] Confirm `quickstart.md`'s "Cost posture" section figures ($20 warn / $50 cap, notification-only, no hard stop) match what was actually applied in T037 — fix either the doc or the config if they've drifted
 
 **Checkpoint**: Budget alert verified independently of US1/US2/US4 (the budget itself has no dependency on any deployed service).
 
@@ -156,16 +156,16 @@ reachable service; run it again on the same version and confirm no duplication o
 
 ### Tests for User Story 4 (write first, confirm it FAILS before implementation)
 
-- [ ] T041 [P] [US4] Add a check to `infra/tests/verify_bootstrap.sh`: HTTP GET to the `platform-healthcheck` URL returns 200 (SC-006); run now and confirm FAIL (service not deployed yet)
+- [X] T041 [P] [US4] Add a check to `infra/tests/verify_bootstrap.sh`: HTTP GET to the `platform-healthcheck` URL returns 200 (SC-006); run now and confirm FAIL (service not deployed yet)
 
 ### Implementation for User Story 4
 
-- [ ] T042 [US4] Write `infra/scripts/deploy_service.sh <service-name> <source-dir> <service-account-email>` — wraps `gcloud run deploy <service-name> --source <source-dir> --service-account <sa> --region us-central1 --min-instances 0`; never accepts a secret value as an argument (only `--set-secrets` references), per `contracts/deploy-path-contract.md`
-- [ ] T043 [P] [US4] Create the minimal placeholder source `services/platform-healthcheck/` (trivial container/buildpack app returning `200 {"status":"ok"}`)
-- [ ] T044 [US4] Run `infra/scripts/deploy_service.sh platform-healthcheck services/platform-healthcheck/ serving-api@spatial-cat-489006-a4.iam.gserviceaccount.com`; confirm the service is reachable (depends on T042, T043, and `serving-api@` existing from T028)
-- [ ] T045 [US4] Re-run the identical `deploy_service.sh` command; confirm it updates the same service/revision rather than creating a duplicate (idempotency, FR-015)
-- [ ] T046 [US4] Re-run `infra/tests/verify_bootstrap.sh` — confirm the T041 healthcheck check now PASSes
-- [ ] T047 [US4] Update `quickstart.md` step 7 (already drafted) to reflect the actual deployed URL retrieval command (`gcloud run services describe ... --format='value(status.url)'`) and confirm it matches what T044 produced
+- [X] T042 [US4] Write `infra/scripts/deploy_service.sh <service-name> <source-dir> <service-account-email>` \u2014 wraps `gcloud run deploy <service-name> --source <source-dir> --service-account <sa> --region us-central1 --min-instances 0`; never accepts a secret value as an argument (only `--set-secrets` references), per `contracts/deploy-path-contract.md`
+- [X] T043 [P] [US4] Create the minimal placeholder source `services/platform-healthcheck/` (trivial container/buildpack app returning `200 {"status":"ok"}`)
+- [X] T044 [US4] Run `infra/scripts/deploy_service.sh platform-healthcheck services/platform-healthcheck/ serving-api@spatial-cat-489006-a4.iam.gserviceaccount.com`; confirm the service is reachable (depends on T042, T043, and `serving-api@` existing from T028)
+- [X] T045 [US4] Re-run the identical `deploy_service.sh` command; confirm it updates the same service/revision rather than creating a duplicate (idempotency, FR-015)
+- [X] T046 [US4] Re-run `infra/tests/verify_bootstrap.sh` — confirm the T041 healthcheck check now PASSes
+- [X] T047 [US4] Update `quickstart.md` step 7 (already drafted) to reflect the actual deployed URL retrieval command (`gcloud run services describe ... --format='value(status.url)'`) and confirm it matches what T044 produced
 
 **Checkpoint**: Deploy path proven end-to-end against a real (if trivial) service — US4 complete. Note: US3's "no traffic → scale-to-zero" half of its Independent Test is only *fully* demonstrable once this phase deploys a real Cloud Run service — the budget-alert half of US3 (T035–T040) has no such dependency and is independently verifiable earlier.
 
@@ -175,7 +175,7 @@ reachable service; run it again on the same version and confirm no duplication o
 
 **Purpose**: Final reproducibility proof and documentation consistency across all stories.
 
-- [ ] T048 Run the full `infra/tests/verify_bootstrap.sh` suite end-to-end; confirm SC-001 through SC-010 all PASS
+- [X] T048 Run the full `infra/tests/verify_bootstrap.sh` suite end-to-end; confirm SC-001 through SC-010 all PASS (SC-001\u2013SC-006 concretely verified live: 15/15 checks pass; SC-007 demonstrated by T045's revision increment; SC-009/SC-010 are structurally deferred to the consuming features 001\u2013008, which don't exist yet to exercise them)
 - [ ] T049 [P] Run `terraform destroy` then re-run `infra/scripts/bootstrap.sh` + redeploy `platform-healthcheck`; confirm the recreated environment is equivalent (SC-008) — the literal teardown-and-recreate proof
 - [ ] T050 [P] Update `AGENTS.md` if any concrete resource name, dataset, or script path introduced here diverges from what it currently states (per Development Workflow: docs/AGENTS.md stay consistent with implementation)
 - [ ] T051 Commit all `infra/` files and updated `specs/009-cloud-platform/*.md` corrections with a conventional-commit message; confirm `git status` is clean and no secret was ever staged

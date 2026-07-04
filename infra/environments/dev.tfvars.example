@@ -1,0 +1,10 @@
+# Copy this file to dev.tfvars and fill in real values.
+# dev.tfvars is gitignored — it is NEVER committed.
+# billing_account_id is deliberately NOT set here; pass it at apply time via
+# -var="billing_account_id=..." (see specs/009-cloud-platform/quickstart.md) so it
+# never lands in a file at all.
+
+project_id  = "spatial-cat-489006-a4"
+region      = "us-central1"
+alert_email = "you@example.com"
+environment = "dev"

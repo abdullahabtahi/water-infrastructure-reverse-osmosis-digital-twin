@@ -3,9 +3,13 @@
 Cloud-native digital twin for **Municipal/Industrial BWRO** (Brackish Water RO) facilities.
 Unifies operational data, physics simulation, AI diagnostics, and economics on GCP.
 
-**Current stage:** Planning complete, moving to architecture & implementation. The only
-runnable code today is the WaterTAP validation spike — the rest lives as design briefs in
-[docs/](docs/). Treat the docs as the source of truth; do not duplicate their content.
+**Current stage:** Spec-driven decomposition (9 features) complete; Feature 009 (cloud
+platform) implemented — GCP project `spatial-cat-489006-a4` is bootstrapped (BigQuery
+datasets, Pub/Sub topic, least-privilege IAM, budget alert, deploy path proven via
+[infra/](infra/), see [specs/009-cloud-platform/quickstart.md](specs/009-cloud-platform/quickstart.md)).
+Runnable code: the WaterTAP validation spike and the `infra/` Terraform/scripts. Remaining
+features (001–008) still live as design briefs in [docs/](docs/) and specs in
+[specs/](specs/). Treat the docs as the source of truth; do not duplicate their content.
 
 ## Start here
 

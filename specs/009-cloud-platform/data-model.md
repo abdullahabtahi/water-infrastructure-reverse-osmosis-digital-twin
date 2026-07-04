@@ -19,7 +19,7 @@ Satisfies: FR-001. Relationships: parent of every resource below.
 ## Managed Service Set (enabled APIs)
 
 An ordered list of `google_project_service` resources (see research.md §3 for the full
-16-entry list and rationale). Satisfies: FR-002. Relationships: must be enabled before the
+17-entry list and rationale). Satisfies: FR-002. Relationships: must be enabled before the
 resource that depends on it can be created (Terraform's implicit dependency graph handles
 ordering via `depends_on`).
 

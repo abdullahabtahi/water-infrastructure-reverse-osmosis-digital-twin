@@ -22,5 +22,15 @@ requested by a later feature").
 ## Hard rule
 
 **Zero rows in this table may read `roles/owner` or `roles/editor` for a *service account*.**
-`infra/tests/bootstrap.tftest.hcl` asserts this structurally (SC-002); `verify_bootstrap.sh`
+`infra/terraform/tests/bootstrap.tftest.hcl` asserts this structurally (SC-002); `verify_bootstrap.sh`
 re-asserts it against the live IAM policy.
+
+## FR-018 (untrusted-content isolation) — satisfied structurally
+
+`adk-agent@` — the only identity that will ever process RAG/retrieved/uploaded content
+(Feature 007) — holds **only** `roles/bigquery.dataViewer` (read) across all 6 datasets plus a
+single scoped `roles/run.invoker` (set imperatively at deploy time, see
+`deploy-path-contract.md`). It holds **no** write role and **no** broader invoke right on any
+other resource. Structurally, untrusted content this identity ever ingests has no privileged
+write/invoke path to reach — satisfied by the least-privilege design above, not by a separate
+content-filtering control. Verified live: `spatial-cat-489006-a4` applied 2026-07-04.

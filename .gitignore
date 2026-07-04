@@ -51,10 +51,13 @@ yarn-error.log
 
 # --- Infrastructure as Code (Feature 009 — Terraform) ---
 .terraform/
-.terraform.lock.hcl
+# NOTE: .terraform.lock.hcl is intentionally NOT ignored — Terraform's own guidance is to
+# commit it so provider version selection is reproducible across machines.
 *.tfstate
 *.tfstate.*
 *.tfplan
+*.tfvars
+!*.tfvars.example
 override.tf
 override.tf.json
 *_override.tf

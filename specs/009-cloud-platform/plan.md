@@ -51,7 +51,7 @@ secrets in source, committed config, or Terraform state; every service identity 
 least privilege (no project-wide `roles/owner`/`roles/editor` on any service account);
 bootstrap and deploy paths MUST be idempotent/resumable (FR-013, FR-015).
 
-**Scale/Scope**: 1 project, 1 region, ~16 enabled APIs, 6 BigQuery datasets (empty), 1 Pub/Sub
+**Scale/Scope**: 1 project, 1 region, 17 enabled APIs, 6 BigQuery datasets (empty), 1 Pub/Sub
 topic, 3 GCS buckets, 4 service accounts, 1 Artifact Registry repo, 1 budget + 1 notification
 channel, 1 placeholder Cloud Run health-check service to prove the deploy path.
 
@@ -99,7 +99,7 @@ infra/
 ├── terraform/
 │   ├── main.tf                 # provider + GCS backend config
 │   ├── variables.tf            # project_id, billing_account_id, region, alert_email, environment
-│   ├── outputs.tf               # dataset ids, topic name, SA emails, registry url, healthcheck url
+│   ├── outputs.tf               # dataset ids, topic name, SA emails, registry url, secret ids
 │   ├── apis.tf                  # google_project_service (the enabled-services set, FR-002)
 │   ├── bigquery.tf              # 6 google_bigquery_dataset resources (FR-003)
 │   ├── pubsub.tf                 # ro-readings topic (+ dead-letter subscription) (FR-004)
@@ -107,7 +107,11 @@ infra/
 │   ├── artifact_registry.tf        # ro-digital-twin docker repo
 │   ├── iam.tf                       # 4 service accounts + least-privilege bindings (FR-005, FR-006)
 │   ├── secrets.tf                    # secret containers only, no versions/values (FR-007, FR-008)
-│   └── budget.tf                      # billing budget + monitoring notification channel (FR-010)
+│   ├── budget.tf                      # billing budget + monitoring notification channel (FR-010)
+│   └── tests/
+│       └── bootstrap.tftest.hcl        # Terraform native unit tests (written first, red before resources exist)
+│                                        # NOTE: must live at terraform/tests/ — `terraform test`
+│                                        # only auto-discovers .tftest.hcl files there, not a sibling dir.
 # NOTE: no cloud_run.tf — Cloud Run *services* are owned exclusively by scripts/deploy_service.sh
 # (imperative `gcloud run deploy`), never declared as a google_cloud_run_v2_service Terraform
 # resource, to avoid Terraform/gcloud fighting over the same resource (drift). Terraform's
@@ -119,7 +123,6 @@ infra/
 │   ├── deploy_service.sh                  # generic build+publish+rollout path for 001–008 (FR-014, FR-015)
 │   └── set_secret.sh                       # human-run helper: gcloud secrets versions add (value never on disk)
 └── tests/
-    ├── bootstrap.tftest.hcl                # Terraform native unit tests (written first, red before resources exist)
     └── verify_bootstrap.sh                  # bash acceptance script — checks live env against every SC-00x
 ```
 

@@ -88,10 +88,14 @@ and returns 200; budget + notification channel exist).
 ## 7. Deploy and smoke-test the placeholder service (proves the deploy path, US4)
 
 ```bash
-./infra/scripts/deploy_service.sh platform-healthcheck services/platform-healthcheck/ serving-api@spatial-cat-489006-a4.iam.gserviceaccount.com
+./infra/scripts/deploy_service.sh platform-healthcheck services/platform-healthcheck/ serving-api@spatial-cat-489006-a4.iam.gserviceaccount.com "" -- --allow-unauthenticated
 curl -s "$(gcloud run services describe platform-healthcheck --region us-central1 --format='value(status.url)')"
-# expect: {"status":"ok"}
+# expect: {"status": "ok"}
 ```
+
+Note: `deploy_service.sh` defaults to IAM-required (least-privilege); the healthcheck passes
+`-- --allow-unauthenticated` because it's a public smoke-test endpoint, not a real capability —
+Features 003/007's real services should omit that flag unless they genuinely need public access.
 
 Note: Cloud Run **services** are intentionally not declared as Terraform resources — they are
 owned exclusively by `deploy_service.sh` (`gcloud run deploy`) so Terraform and `gcloud` never
