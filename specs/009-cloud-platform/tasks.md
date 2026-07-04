@@ -52,7 +52,7 @@ resource can exist before its API is enabled. This phase MUST complete before an
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
 - [X] T005 Write `infra/scripts/bootstrap.sh --phase0`: enable `serviceusage`, `cloudresourcemanager`, `iam`, `storage` APIs and create the GCS state bucket `gs://spatial-cat-489006-a4-tfstate` (versioned, `us-central1`, uniform bucket-level access); must no-op safely if the bucket already exists (FR-013)
-- [ ] T006 Run `infra/scripts/bootstrap.sh --phase0` against `spatial-cat-489006-a4`; confirm the state bucket exists (`gcloud storage buckets describe gs://spatial-cat-489006-a4-tfstate`)
+- [X] T006 Run `infra/scripts/bootstrap.sh --phase0` against `spatial-cat-489006-a4`; confirm the state bucket exists (`gcloud storage buckets describe gs://spatial-cat-489006-a4-tfstate`)
 - [X] T007 Create `infra/terraform/main.tf` — `google` provider (`~> 6.x`) pinned to `spatial-cat-489006-a4`/`us-central1`, and the `gcs` backend block (bucket name from T006)
 - [X] T008 Create `infra/terraform/variables.tf` — `project_id`, `region` (default `us-central1`), `billing_account_id`, `alert_email`, `environment` (default `dev`), per `contracts/terraform-module-interface.md`
 - [X] T009 Create `infra/terraform/outputs.tf` — skeleton output blocks for `bigquery_dataset_ids`, `pubsub_topic_id`, `service_account_emails`, `artifact_registry_repo`, `secret_ids` (no `healthcheck_url` — see contract note on Cloud Run ownership)
@@ -176,9 +176,9 @@ reachable service; run it again on the same version and confirm no duplication o
 **Purpose**: Final reproducibility proof and documentation consistency across all stories.
 
 - [X] T048 Run the full `infra/tests/verify_bootstrap.sh` suite end-to-end; confirm SC-001 through SC-010 all PASS (SC-001\u2013SC-006 concretely verified live: 15/15 checks pass; SC-007 demonstrated by T045's revision increment; SC-009/SC-010 are structurally deferred to the consuming features 001\u2013008, which don't exist yet to exercise them)
-- [ ] T049 [P] Run `terraform destroy` then re-run `infra/scripts/bootstrap.sh` + redeploy `platform-healthcheck`; confirm the recreated environment is equivalent (SC-008) — the literal teardown-and-recreate proof
-- [ ] T050 [P] Update `AGENTS.md` if any concrete resource name, dataset, or script path introduced here diverges from what it currently states (per Development Workflow: docs/AGENTS.md stay consistent with implementation)
-- [ ] T051 Commit all `infra/` files and updated `specs/009-cloud-platform/*.md` corrections with a conventional-commit message; confirm `git status` is clean and no secret was ever staged
+- [X] T049 [P] Run `terraform destroy` then re-run `infra/scripts/bootstrap.sh` + redeploy `platform-healthcheck`; confirm the recreated environment is equivalent (SC-008) — the literal teardown-and-recreate proof
+- [X] T050 [P] Update `AGENTS.md` if any concrete resource name, dataset, or script path introduced here diverges from what it currently states (per Development Workflow: docs/AGENTS.md stay consistent with implementation)
+- [X] T051 Commit all `infra/` files and updated `specs/009-cloud-platform/*.md` corrections with a conventional-commit message; confirm `git status` is clean and no secret was ever staged
 
 ---
 
