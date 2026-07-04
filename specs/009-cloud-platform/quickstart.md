@@ -85,12 +85,17 @@ topic exists; 4 service accounts each hold only their scoped roles, zero project
 owner/editor grants; zero secrets found in source/state scan; healthcheck service reachable
 and returns 200; budget + notification channel exist).
 
-## 7. Smoke-test the deploy path
+## 7. Deploy and smoke-test the placeholder service (proves the deploy path, US4)
 
 ```bash
-curl -s "$(terraform -chdir=infra/terraform output -raw healthcheck_url)"
+./infra/scripts/deploy_service.sh platform-healthcheck services/platform-healthcheck/ serving-api@spatial-cat-489006-a4.iam.gserviceaccount.com
+curl -s "$(gcloud run services describe platform-healthcheck --region us-central1 --format='value(status.url)')"
 # expect: {"status":"ok"}
 ```
+
+Note: Cloud Run **services** are intentionally not declared as Terraform resources — they are
+owned exclusively by `deploy_service.sh` (`gcloud run deploy`) so Terraform and `gcloud` never
+fight over the same resource. Terraform's job ends at the service *accounts* the service runs as.
 
 ## Cost posture (honest, per FR-020)
 

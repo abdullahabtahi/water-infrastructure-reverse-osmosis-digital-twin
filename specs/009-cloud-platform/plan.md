@@ -107,8 +107,11 @@ infra/
 │   ├── artifact_registry.tf        # ro-digital-twin docker repo
 │   ├── iam.tf                       # 4 service accounts + least-privilege bindings (FR-005, FR-006)
 │   ├── secrets.tf                    # secret containers only, no versions/values (FR-007, FR-008)
-│   ├── budget.tf                      # billing budget + monitoring notification channel (FR-010)
-│   └── cloud_run.tf                    # platform-healthcheck placeholder service (proves FR-014)
+│   └── budget.tf                      # billing budget + monitoring notification channel (FR-010)
+# NOTE: no cloud_run.tf — Cloud Run *services* are owned exclusively by scripts/deploy_service.sh
+# (imperative `gcloud run deploy`), never declared as a google_cloud_run_v2_service Terraform
+# resource, to avoid Terraform/gcloud fighting over the same resource (drift). Terraform's
+# iam.tf still declares the service accounts a deployed service will run as.
 ├── environments/
 │   └── dev.tfvars.example               # template; real dev.tfvars is gitignored (never committed)
 ├── scripts/

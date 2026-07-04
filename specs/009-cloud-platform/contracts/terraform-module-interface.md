@@ -24,8 +24,15 @@ Real values live in `infra/environments/dev.tfvars`, which is **gitignored**. A 
 | `pubsub_topic_id` | `ro-readings` full resource ID | Feature 002 replay harness, future live connector |
 | `service_account_emails` | Map of the 4 service account emails | Features 003, 004/006, 007, 001 (Dataform) |
 | `artifact_registry_repo` | Docker repo URL | `deploy_service.sh` (image push target) |
-| `healthcheck_url` | Deployed `platform-healthcheck` Cloud Run URL | `verify_bootstrap.sh`, manual smoke test |
 | `secret_ids` | Map of the 2 secret container IDs (no values) | `set_secret.sh`, future services reading secrets at runtime |
+
+Note: there is no `healthcheck_url` Terraform output — Cloud Run **services** (including the
+`platform-healthcheck` placeholder) are owned exclusively by `deploy_service.sh`, never declared
+as a `google_cloud_run_v2_service` Terraform resource, to avoid Terraform/`gcloud` ownership
+drift. Obtain a deployed service's URL with:
+```bash
+gcloud run services describe <service-name> --region us-central1 --format='value(status.url)'
+```
 
 ## Invocation contract
 
