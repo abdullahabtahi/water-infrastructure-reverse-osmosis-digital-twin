@@ -172,7 +172,7 @@ an exact reconciliation, with each event carrying the cycle it closes (quickstar
 - [X] T042 [P] Re-run `load_raw.py` + `dataform run` a second full time on unchanged source; diff row counts/checksums against the first run to prove SC-007 (byte-for-byte reproducibility) — confirmed IDENTICAL (all 6 table row counts + `unit_readings`' `dss_derived` checksum matched exactly, despite a transient network timeout mid-run that BigQuery's load-job retry handled transparently)
 - [X] T043 [P] Run the quickstart.md SC-008 cross-plant sample query (steepest last-stage flux decline per unit in its current cycle) and confirm it answers without opening any raw CSV (fixed a correlated-subquery aliasing bug found while running it)
 - [X] T044 Update `AGENTS.md`'s "Current stage" note if Feature 001 completion changes the accurate project-status summary
-- [ ] T045 Commit all `pipeline/` files and any doc corrections with a conventional-commit message; confirm `git status` is clean and no secret was ever staged
+- [X] T045 Commit all `pipeline/` files and any doc corrections with a conventional-commit message; confirm `git status` is clean and no secret was ever staged
 
 ---
 
