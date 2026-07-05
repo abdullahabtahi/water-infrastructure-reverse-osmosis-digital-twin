@@ -1,0 +1,21 @@
+-- Assertion: the 5 columns confirmed 100%-empty for banks A-E in the source
+-- (total_kw, erd_boost_pressure, calc_conc_cond, calc_2_3_cond, calc_conc_corr_factor)
+-- must NOT appear in ro_curated.unit_readings (FR-005). Checked via INFORMATION_SCHEMA
+-- since this is a schema-shape check, not a row-level condition.
+--
+-- Uses an explicit `dependencies` declaration (rather than ${ref()} inside the query body,
+-- which would require a real column reference) to still order this after unit_readings
+-- in the dependency graph. Written first per Constitution Principle VII — MUST fail until
+-- unit_readings.sqlx exists.
+
+config {
+  type: "assertion",
+  dependencies: ["unit_readings"]
+}
+
+SELECT column_name
+FROM `${dataform.projectConfig.defaultDatabase}`.ro_curated.INFORMATION_SCHEMA.COLUMNS
+WHERE table_name = 'unit_readings'
+  AND column_name IN (
+    'total_kw', 'erd_boost_pressure', 'calc_conc_cond', 'calc_2_3_cond', 'calc_conc_corr_factor'
+  )

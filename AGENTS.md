@@ -4,10 +4,15 @@ Cloud-native digital twin for **Municipal/Industrial BWRO** (Brackish Water RO) 
 Unifies operational data, physics simulation, AI diagnostics, and economics on GCP.
 
 **Current stage:** Spec-driven decomposition (9 features) complete; Feature 009 (cloud
-platform) implemented — GCP project `spatial-cat-489006-a4` is bootstrapped (BigQuery
-datasets, Pub/Sub topic, least-privilege IAM, budget alert, deploy path proven via
-[infra/](infra/), see [specs/009-cloud-platform/quickstart.md](specs/009-cloud-platform/quickstart.md)).
-Runnable code: the WaterTAP validation spike and the `infra/` Terraform/scripts. Remaining
+platform) and Feature 001 (data foundation) implemented. GCP project `spatial-cat-489006-a4`
+is bootstrapped (BigQuery datasets, Pub/Sub topic, least-privilege IAM, budget alert, deploy
+path proven via [infra/](infra/), see [specs/009-cloud-platform/quickstart.md](specs/009-cloud-platform/quickstart.md)).
+`ro_curated` now holds the harmonized 21-unit OCWD history (15,624 rows), re-derived
+`dss`/cycle grouping, a 71-event CIP ground-truth catalog, and measured-vs-not-available
+signal provenance — see [pipeline/](pipeline/) and
+[specs/001-data-foundation/quickstart.md](specs/001-data-foundation/quickstart.md).
+Runnable code: the WaterTAP validation spike, `infra/` (Terraform/scripts), and `pipeline/`
+(loader + Dataform transforms). Remaining
 features (001–008) still live as design briefs in [docs/](docs/) and specs in
 [specs/](specs/). Treat the docs as the source of truth; do not duplicate their content.
 

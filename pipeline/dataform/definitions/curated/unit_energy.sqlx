@@ -1,0 +1,21 @@
+-- Curated: energy signals, measured only on banks F-G (contracts/curated-schema-contract.md).
+-- Banks A-E rows are absent here entirely (not NULL-padded) — Feature 003 supplies the
+-- modeled A-E stand-in in its OWN table (ro_simulation), never by mutating this one.
+
+config {
+  type: "table",
+  schema: "ro_curated",
+  assertions: {
+    uniqueKey: ["unit_id", "reading_date"],
+    nonNull: ["unit_id", "reading_date"]
+  }
+}
+
+SELECT
+  unit_id,
+  reading_date,
+  SAFE_CAST(total_kw AS FLOAT64) AS total_kw,
+  SAFE_CAST(k_wh_feed_pump AS FLOAT64) AS k_wh_feed_pump,
+  SAFE_CAST(erd_k_w AS FLOAT64) AS erd_k_w,
+  SAFE_CAST(amps_erd AS FLOAT64) AS amps_erd
+FROM `${dataform.projectConfig.defaultDatabase}`.ro_raw.unit_readings_fg_raw

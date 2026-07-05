@@ -1,0 +1,5 @@
+dataformCoreVersion: 3.0.61
+defaultProject: spatial-cat-489006-a4
+defaultLocation: us-central1
+defaultDataset: ro_curated
+defaultAssertionDataset: ro_curated

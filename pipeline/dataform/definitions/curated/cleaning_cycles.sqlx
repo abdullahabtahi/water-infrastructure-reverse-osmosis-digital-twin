@@ -1,0 +1,22 @@
+-- Curated: cleaning-cycle boundaries per unit, summarized FROM unit_readings's own
+-- cycle_id assignment (computed there via window functions — see unit_readings.sqlx).
+-- cycle_end_date is NULL for the still-open final cycle (no closing cip row yet), per
+-- data-model.md.
+
+config {
+  type: "table",
+  schema: "ro_curated",
+  assertions: {
+    uniqueKey: ["unit_id", "cycle_id"],
+    nonNull: ["unit_id", "cycle_id", "cycle_start_date"]
+  }
+}
+
+SELECT
+  unit_id,
+  cycle_id,
+  MIN(reading_date) AS cycle_start_date,
+  MAX(IF(cip, reading_date, NULL)) AS cycle_end_date,
+  DATE_DIFF(MAX(IF(cip, reading_date, NULL)), MIN(reading_date), DAY) AS cycle_length_days
+FROM ${ref("unit_readings")}
+GROUP BY unit_id, cycle_id

@@ -1,0 +1,19 @@
+-- Assertion: signal_provenance reports exactly 'measured' for banks F-G and
+-- 'not_available' for banks A-E on signal_name = 'energy'. Written first per
+-- Constitution Principle VII — MUST fail until signal_provenance.sqlx exists.
+
+config {
+  type: "assertion"
+}
+
+WITH expected AS (
+  SELECT DISTINCT
+    unit_id,
+    IF(SUBSTR(unit_id, 1, 1) IN ('F', 'G'), 'measured', 'not_available') AS expected_provenance
+  FROM ${ref("unit_readings")}
+)
+SELECT e.unit_id, e.expected_provenance, sp.provenance
+FROM expected e
+LEFT JOIN ${ref("signal_provenance")} sp
+  ON sp.unit_id = e.unit_id AND sp.signal_name = 'energy'
+WHERE sp.provenance IS NULL OR sp.provenance != e.expected_provenance

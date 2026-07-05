@@ -1,0 +1,35 @@
+-- Staging: harmonize banks F-G (117-col layout) onto the same shared core schema.
+-- Mirrors stg_unit_readings_ae.sqlx exactly for every shared core column.
+
+config {
+  type: "view",
+  schema: "ro_curated",
+  tags: ["staging"]
+}
+
+SELECT
+  unit_id,
+  bank_id,
+  stage,
+  reading_date,
+  SAFE_CAST(temp_c AS FLOAT64) AS temp_c,
+  SAFE_CAST(unit_recovery AS FLOAT64) AS unit_recovery,
+  SAFE_CAST(unit_dp AS FLOAT64) AS unit_dp,
+  SAFE_CAST(unit_n_delta_p AS FLOAT64) AS unit_n_delta_p,
+  SAFE_CAST(stage_1_flux AS FLOAT64) AS stage_1_flux,
+  SAFE_CAST(stage_2_flux AS FLOAT64) AS stage_2_flux,
+  SAFE_CAST(stage_3_flux AS FLOAT64) AS stage_3_flux,
+  SAFE_CAST(perm_ec AS FLOAT64) AS perm_ec,
+  SAFE_CAST(ec AS FLOAT64) AS ec,
+  SAFE_CAST(conc_ec AS FLOAT64) AS conc_ec,
+  SAFE_CAST(percent_ec_removal AS FLOAT64) AS percent_ec_removal,
+  SAFE_CAST(ph AS FLOAT64) AS ph,
+  SAFE_CAST(turb AS FLOAT64) AS turb,
+  SAFE_CAST(cl2_tot AS FLOAT64) AS cl2_tot,
+  SAFE_CAST(rof_toc_avg AS FLOAT64) AS rof_toc_avg,
+  SAFE_CAST(rop_toc_avg AS FLOAT64) AS rop_toc_avg,
+  SAFE_CAST(percent_toc_removal AS FLOAT64) AS percent_toc_removal,
+  cip = 1 AS cip,
+  dss AS dss_source,
+  days_since_replacement
+FROM `${dataform.projectConfig.defaultDatabase}`.ro_raw.unit_readings_fg_raw

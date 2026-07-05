@@ -1,0 +1,28 @@
+-- Assertion: dss_derived matches the source dss column within a documented ±1-day
+-- boundary tolerance for >99% of rows — the cross-validation the spec explicitly requires
+-- ("derives/validates from first principles rather than trusting the raw column blindly").
+-- Mismatches are surfaced via this assertion failing, never silently swallowed.
+
+config {
+  type: "assertion"
+}
+
+WITH compared AS (
+  SELECT
+    unit_id,
+    reading_date,
+    dss_derived,
+    dss_source,
+    ABS(COALESCE(dss_derived, -999999) - dss_source) AS diff
+  FROM ${ref("unit_readings")}
+  WHERE dss_source IS NOT NULL
+),
+mismatch_rate AS (
+  SELECT
+    COUNTIF(diff > 1) AS mismatches,
+    COUNT(*) AS total
+  FROM compared
+)
+SELECT *
+FROM mismatch_rate
+WHERE total = 0 OR (mismatches / total) > 0.01

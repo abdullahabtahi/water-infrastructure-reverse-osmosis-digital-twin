@@ -143,20 +143,24 @@ Principle I. No `NEEDS CLARIFICATION` markers remain.
   and violates FR-001's "preserving every original reading"); silently clipping values to
   bounds (rejected — that is exactly the kind of fabrication FR-013 forbids).
 
-## 10. Dataform repository ownership — feature-owned, not shared infra
+## 10. Dataform execution mode — local CLI only, no managed repository resource
 
-- **Decision**: The Dataform repository/workspace linkage (`gcloud dataform repositories
-  create`) is created and owned by this feature's own setup step, not added to Feature 009's
-  shared Terraform module. `dataform.googleapis.com` (the API) is already enabled by 009; the
-  repository resource itself is this feature's transform-layer implementation detail.
-- **Rationale**: Unlike the BigQuery datasets, Pub/Sub topic, or IAM service accounts (which
-  multiple features read/write and therefore belong in shared infra), the Dataform repository
-  is used exclusively by this feature's own transform pipeline. Keeping it here avoids
-  reopening 009's already-verified, tested Terraform state for a single-feature concern.
-- **Alternatives considered**: Extending `infra/terraform/` with a `google_dataform_repository`
-  resource (rejected — couples an already-stable, tested shared module to a single feature's
-  implementation detail; the IAM role matrix's "extend, don't widen" pattern is about shared
-  identities, not every future resource).
+- **Decision**: Run Dataform entirely via the open-source local CLI (`npm install -g @dataform/cli`,
+  `dataform run`/`dataform test` against BigQuery using Application Default Credentials) rather
+  than provisioning a GCP-managed Dataform *repository* resource (the git-linked, Cloud-Console-
+  schedulable resource `gcloud dataform repositories create` / `google_dataform_repository`
+  would create).
+- **Rationale**: Discovered hands-on during implementation — the installed `gcloud` SDK
+  (560.0.0) has no `dataform` command group in any release track (stable/beta/alpha), and the
+  managed repository resource is only needed for git-linked/scheduled cloud-orchestrated runs,
+  which this single-operator prototype doesn't need. The local CLI runs the exact same
+  `workflow_settings.yaml` + `definitions/` project directly against BigQuery, which is
+  simpler and unblocks implementation immediately.
+- **Alternatives considered**: `gcloud alpha dataform repositories create` (rejected — command
+  group does not exist in this SDK build, confirmed after installing both beta and alpha
+  components); a small feature-owned Terraform config declaring `google_dataform_repository`
+  (rejected for now — adds a second small Terraform state for a resource this prototype does
+  not need; can be added later if scheduled/Console-triggered runs become a requirement).
 
 ## 11. Test strategy (Principle VII analogue for a data pipeline)
 

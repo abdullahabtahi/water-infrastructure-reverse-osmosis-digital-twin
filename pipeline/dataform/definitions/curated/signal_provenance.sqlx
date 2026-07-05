@@ -1,0 +1,19 @@
+-- Curated: static, per-unit measured-vs-not_available provenance (Constitution Principle IV).
+-- Currently one signal (energy); extensible for future signals per data-model.md.
+-- energy is metered only on banks F-G (verified via repo profiling + raw schema check).
+
+config {
+  type: "table",
+  schema: "ro_curated",
+  assertions: {
+    uniqueKey: ["unit_id", "signal_name"],
+    nonNull: ["unit_id", "signal_name", "provenance"],
+    rowConditions: ["provenance IN ('measured', 'not_available')"]
+  }
+}
+
+SELECT
+  unit_id,
+  'energy' AS signal_name,
+  IF(bank_id IN ('F', 'G'), 'measured', 'not_available') AS provenance
+FROM (SELECT DISTINCT unit_id, bank_id FROM ${ref("unit_readings")})

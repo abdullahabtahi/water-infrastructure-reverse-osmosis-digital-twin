@@ -1,0 +1,29 @@
+-- Assertion: ro_curated.cip_events reconciles EXACTLY with the source cip=1 signal —
+-- same count, no missed or duplicated (unit_id, cip_date) pairs. Written first per
+-- Constitution Principle VII — MUST fail until cip_events.sqlx exists.
+
+config {
+  type: "assertion"
+}
+
+WITH source_cip_count AS (
+  SELECT COUNT(*) AS source_n
+  FROM ${ref("unit_readings")}
+  WHERE cip
+),
+catalog_count AS (
+  SELECT COUNT(*) AS catalog_n FROM ${ref("cip_events")}
+),
+duplicate_check AS (
+  SELECT COUNT(*) AS dupes
+  FROM (
+    SELECT unit_id, cip_date, COUNT(*) AS c
+    FROM ${ref("cip_events")}
+    GROUP BY unit_id, cip_date
+    HAVING c > 1
+  )
+)
+SELECT *
+FROM source_cip_count, catalog_count, duplicate_check
+WHERE source_n != catalog_n
+   OR dupes != 0

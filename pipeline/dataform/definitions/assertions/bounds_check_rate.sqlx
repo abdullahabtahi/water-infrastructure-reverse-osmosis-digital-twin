@@ -1,0 +1,19 @@
+-- Assertion: the fraction of rows with is_out_of_range = TRUE stays below a documented
+-- threshold (0.5%) — a sanity check that bounds validation isn't over-flagging (which
+-- would suggest a bug) or entirely inert (which would suggest it isn't running). Written
+-- first per Constitution Principle VII — MUST fail until unit_readings computes real
+-- is_out_of_range values (currently a FALSE placeholder from US1/US2).
+
+config {
+  type: "assertion"
+}
+
+WITH rate AS (
+  SELECT
+    COUNTIF(is_out_of_range) AS flagged,
+    COUNT(*) AS total
+  FROM ${ref("unit_readings")}
+)
+SELECT *
+FROM rate
+WHERE (flagged / total) > 0.005

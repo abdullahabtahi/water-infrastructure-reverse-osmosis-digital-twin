@@ -1,0 +1,19 @@
+-- Curated: the ONLY sanctioned ground-truth maintenance label source (see
+-- contracts/data-quality-contract.md). One row per real CIP event, joined to
+-- cleaning_cycles to carry the cycle it closes (FR-011).
+
+config {
+  type: "table",
+  schema: "ro_curated",
+  assertions: {
+    uniqueKey: ["unit_id", "cip_date"],
+    nonNull: ["unit_id", "cip_date", "cycle_id_closed"]
+  }
+}
+
+SELECT
+  ur.unit_id,
+  ur.reading_date AS cip_date,
+  ur.cycle_id AS cycle_id_closed
+FROM ${ref("unit_readings")} ur
+WHERE ur.cip

@@ -1,0 +1,65 @@
+-- Curated: the single harmonized core table every downstream feature reads
+-- (contracts/curated-schema-contract.md). UNION ALL of both staging models, then
+-- dss_derived/cycle_id are computed here directly via window functions over the raw `cip`
+-- flag (self-contained — cleaning_cycles.sqlx summarizes FROM this table, not the reverse,
+-- to avoid a circular Dataform dependency).
+--
+-- dss_derived semantics (grounded against real data, unit B01, during implementation):
+--   on a cip=true row, dss_derived resets to 1 (not 0) — e.g. 2019-07-30 dss=210,
+--   2019-07-31 cip=true dss=1, 2019-08-01 dss=2. Before any cip has ever occurred for a
+--   unit, dss_derived counts 0-indexed from history start (2019-01-01 dss=0, 01-02 dss=1).
+--
+-- is_out_of_range is still a placeholder here (false) — filled in properly by US4.
+
+config {
+  type: "table",
+  schema: "ro_curated",
+  assertions: {
+    uniqueKey: ["unit_id", "reading_date"],
+    nonNull: ["unit_id", "bank_id", "stage", "reading_date"]
+  }
+}
+
+WITH unioned AS (
+  SELECT * FROM ${ref("stg_unit_readings_ae")}
+  UNION ALL
+  SELECT * FROM ${ref("stg_unit_readings_fg")}
+),
+with_cycle_markers AS (
+  SELECT
+    *,
+    -- Most recent cip=true date up to AND INCLUDING the current row (NULL before any cip)
+    LAST_VALUE(IF(cip, reading_date, NULL) IGNORE NULLS) OVER (
+      PARTITION BY unit_id ORDER BY reading_date
+      ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+    ) AS last_clean_date_inclusive,
+    MIN(reading_date) OVER (PARTITION BY unit_id) AS history_start,
+    -- Count of PRIOR (strictly before this row) cip=true rows -> cycle number
+    1 + COUNTIF(cip) OVER (
+      PARTITION BY unit_id ORDER BY reading_date
+      ROWS BETWEEN UNBOUNDED PRECEDING AND 1 PRECEDING
+    ) AS cycle_id
+  FROM unioned
+)
+SELECT
+  * EXCEPT (last_clean_date_inclusive, history_start),
+  CASE
+    WHEN last_clean_date_inclusive IS NOT NULL
+      THEN DATE_DIFF(reading_date, last_clean_date_inclusive, DAY) + 1
+    ELSE DATE_DIFF(reading_date, history_start, DAY)
+  END AS dss_derived,
+  -- Bounds validation (FR-014): flagged, never dropped or corrected — the row stays.
+  (
+    (unit_recovery IS NOT NULL AND unit_recovery NOT BETWEEN 0 AND 1)
+    OR (ph IS NOT NULL AND ph NOT BETWEEN 0 AND 14)
+    OR (turb IS NOT NULL AND turb < 0)
+    OR (cl2_tot IS NOT NULL AND cl2_tot < 0)
+    OR (perm_ec IS NOT NULL AND perm_ec < 0)
+    OR (ec IS NOT NULL AND ec < 0)
+    OR (conc_ec IS NOT NULL AND conc_ec < 0)
+    OR (stage_1_flux IS NOT NULL AND stage_1_flux < 0)
+    OR (stage_2_flux IS NOT NULL AND stage_2_flux < 0)
+    OR (stage_3_flux IS NOT NULL AND stage_3_flux < 0)
+  ) AS is_out_of_range
+FROM with_cycle_markers
+

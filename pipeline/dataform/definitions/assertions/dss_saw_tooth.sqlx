@@ -1,0 +1,29 @@
+-- Assertion: dss_derived is a saw-tooth — resets to 1 on a cip=true row, increases by
+-- exactly 1 day-over-day otherwise. Grounded against real data during implementation
+-- (unit B01: 2019-07-30 dss=210 -> 2019-07-31 cip=true dss=1 -> 2019-08-01 dss=2...).
+--
+-- Written first per Constitution Principle VII — MUST fail until unit_readings.sqlx
+-- computes dss_derived (currently NULL placeholder from US1).
+
+config {
+  type: "assertion"
+}
+
+WITH ordered AS (
+  SELECT
+    unit_id,
+    reading_date,
+    cip,
+    dss_derived,
+    LAG(dss_derived) OVER (PARTITION BY unit_id ORDER BY reading_date) AS prev_dss,
+    LAG(reading_date) OVER (PARTITION BY unit_id ORDER BY reading_date) AS prev_date
+  FROM ${ref("unit_readings")}
+)
+SELECT *
+FROM ordered
+WHERE prev_date IS NOT NULL  -- skip each unit's first row (no prior day to compare)
+  AND (
+    dss_derived IS NULL  -- not yet computed is itself a failure, not a vacuous pass
+    OR (cip AND dss_derived != 1)
+    OR (NOT cip AND dss_derived != prev_dss + 1)
+  )

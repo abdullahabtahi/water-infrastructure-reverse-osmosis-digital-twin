@@ -1,0 +1,22 @@
+-- Curated: per-day gap summary for signals a unit actually supports (measured), distinct
+-- from signal_provenance (which is the static "does this unit support this at all" fact).
+-- 'energy' is represented by total_kw (the central energy KPI) for this summary.
+
+config {
+  type: "table",
+  schema: "ro_curated",
+  assertions: {
+    uniqueKey: ["unit_id", "signal_name"],
+    nonNull: ["unit_id", "signal_name", "non_null_count", "total_days"]
+  }
+}
+
+SELECT
+  ue.unit_id,
+  'energy' AS signal_name,
+  COUNTIF(ue.total_kw IS NOT NULL) AS non_null_count,
+  COUNT(*) AS total_days,
+  MIN(IF(ue.total_kw IS NULL, ue.reading_date, NULL)) AS first_gap_date,
+  MAX(IF(ue.total_kw IS NULL, ue.reading_date, NULL)) AS last_gap_date
+FROM ${ref("unit_energy")} ue
+GROUP BY ue.unit_id

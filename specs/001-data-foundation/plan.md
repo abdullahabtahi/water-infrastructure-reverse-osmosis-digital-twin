@@ -101,12 +101,13 @@ pipeline/
 │   ├── column_maps.py         # unit_id/bank_id/stage identity extraction from filename (pure functions)
 │   └── requirements.txt        # google-cloud-bigquery, google-cloud-storage (Python 3.11)
 ├── dataform/
-│   ├── dataform.json            # Dataform project config (warehouse=bigquery, default schema=ro_curated)
+│   ├── workflow_settings.yaml   # Dataform core 3.0+ project config (defaultProject, defaultLocation, defaultDataset)
 │   ├── definitions/
 │   │   ├── staging/               # raw -> curated harmonization (unit_readings, unit_energy)
-│   │   ├── curated/                 # cip_events, cleaning_cycles, signal_provenance, data_completeness
-│   │   └── assertions/                # uniqueness/not-null/range/reconciliation checks (written first)
-│   └── package.json
+│   │   └── curated/                 # cip_events, cleaning_cycles, signal_provenance, data_completeness,
+│   │                                 # each with inline config{assertions:{...}} + a few standalone
+│   │                                 # cross-table assertion .sqlx files for checks inline assertions can't express
+│   └── includes/                     # shared JS helpers (e.g. bounds-check constants), if needed
 └── tests/
     ├── test_load_raw.py               # pytest: idempotency, identity tagging, row-count fidelity
     └── verify_data_foundation.sh        # bash acceptance script — checks live tables against SC-001..SC-008

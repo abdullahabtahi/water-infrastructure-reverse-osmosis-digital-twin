@@ -52,8 +52,8 @@ Expected output — one PASS line per criterion:
 -- SC-008 smoke query: steepest last-stage flux decline in current cycle, per unit
 SELECT unit_id, cycle_id,
        MIN(stage_3_flux) - MAX(stage_3_flux) AS flux_decline
-FROM ro_curated.unit_readings
-WHERE cycle_id = (SELECT MAX(cycle_id) FROM ro_curated.unit_readings ur2 WHERE ur2.unit_id = unit_readings.unit_id)
+FROM ro_curated.unit_readings AS ur
+WHERE cycle_id = (SELECT MAX(cycle_id) FROM ro_curated.unit_readings ur2 WHERE ur2.unit_id = ur.unit_id)
 GROUP BY unit_id, cycle_id
 ORDER BY flux_decline ASC
 LIMIT 5;
