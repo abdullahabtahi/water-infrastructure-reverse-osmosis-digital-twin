@@ -1,0 +1,55 @@
+import { ValidationReport } from "../types";
+
+export const mockValidation: ValidationReport = {
+  pre_registered_params: {
+    horizon_days: 90,
+    min_sustained_warning_days: 3
+  },
+  total_cip_events: 71,
+  detected_cycles: 92,
+  baseline_error: 0.463,
+  leading_indicator: {
+    signal: "salt_passage",
+    precision: 0.5,
+    recall: 0.211,
+    tps: 15,
+    fps: 15,
+    fns: 56,
+    median_lead_days: 39.0,
+    p25_lead_days: 7.5,
+    p75_lead_days: 56.0,
+    score: 0.3556
+  },
+  alternative_indicators: [
+    {
+      signal: "unit_n_delta_p",
+      precision: 0.435,
+      recall: 0.141,
+      tps: 10,
+      fps: 13,
+      fns: 61,
+      median_lead_days: 5.5,
+      p25_lead_days: 2.5,
+      p75_lead_days: 16.25,
+      score: 0.2878
+    }
+  ],
+  mechanism_mix: {
+    "organic": 17,
+    "particulate": 10,
+    "particulate|biofouling": 4,
+    "biofouling|organic": 3,
+    "scaling|organic": 2,
+    "particulate|organic": 2,
+    "biofouling|particulate": 1,
+    "scaling|particulate": 1,
+    "organic|scaling": 1,
+    "scaling|biofouling": 1,
+    "scaling": 1
+  },
+  data_limits: [
+    "scaling species not identified — no individual ions in feed",
+    "biofouling vs organic not separable — no microbial/AOC signal",
+    "turbidity is an SDI proxy, not ASTM D4189 SDI"
+  ]
+};

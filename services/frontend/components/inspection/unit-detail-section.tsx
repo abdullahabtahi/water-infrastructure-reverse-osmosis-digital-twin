@@ -1,19 +1,20 @@
-import { UnitInspection, AlertItem, UnitHealth, SourceProvenance } from "@/lib/types";
+import { UnitInspection, AlertItem, UnitHealth, SourceProvenance, Forecast } from "@/lib/types";
 import { StatusBadge } from "@/components/status-badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { TriangleAlert, Cpu } from "lucide-react";
 import { EvidenceFigure } from "@/components/evidence-figure";
-import { ForecastPlaceholder } from "./forecast-placeholder";
+import { FoulingForecastPanel } from "./fouling-forecast-panel";
 
 interface UnitDetailSectionProps {
   selectedUnitId: string;
   unitHealth: UnitHealth | null;
   activeAlerts: AlertItem[];
   inspection: UnitInspection | null;
+  forecast: Forecast | null;
   onClose: () => void;
 }
 
-export function UnitDetailSection({ selectedUnitId, unitHealth, activeAlerts, inspection, onClose }: UnitDetailSectionProps) {
+export function UnitDetailSection({ selectedUnitId, unitHealth, activeAlerts, inspection, forecast, onClose }: UnitDetailSectionProps) {
   return (
     <>
       <header className="flex flex-col gap-6">
@@ -65,30 +66,27 @@ export function UnitDetailSection({ selectedUnitId, unitHealth, activeAlerts, in
         </h3>
         
         {inspection ? (
-          <div className="grid grid-cols-2 gap-4">
-            <TelemetryCard label="Flux" value={inspection.flux.value} unit="LMH" source={inspection.flux.source} />
-            <TelemetryCard label="Delta P" value={inspection.pressureDrop.value} unit="bar" source={inspection.pressureDrop.source} />
-            <TelemetryCard label="Energy" value={inspection.energyUsage.value} unit="kWh/m³" source={inspection.energyUsage.source} />
-            <TelemetryCard label="Clean Cycle" value={inspection.daysSinceClean} unit="days" source="measured" />
+          <div className="grid grid-cols-2 gap-y-8 gap-x-6 p-6 bg-white border border-border/20 rounded-[20px]">
+            <TelemetryMetric label="Flux" value={inspection.flux.value} unit="LMH" source={inspection.flux.source} />
+            <TelemetryMetric label="Delta P" value={inspection.pressureDrop.value} unit="bar" source={inspection.pressureDrop.source} />
+            <TelemetryMetric label="Energy" value={inspection.energyUsage.value} unit="kWh/m³" source={inspection.energyUsage.source} />
+            <TelemetryMetric label="Clean Cycle" value={inspection.daysSinceClean} unit="days" source="measured" />
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-4">
-            <div className="h-28 bg-white/40 rounded-[20px] animate-pulse" />
-            <div className="h-28 bg-white/40 rounded-[20px] animate-pulse" />
-          </div>
+          <div className="h-40 bg-white/40 border border-border/20 rounded-[20px] animate-pulse" />
         )}
       </section>
 
       {/* Fouling Forecast */}
-      <ForecastPlaceholder />
+      <FoulingForecastPanel forecast={forecast} />
     </>
   );
 }
 
-function TelemetryCard({ label, value, unit, source }: { label: string, value: number | null, unit: string, source: SourceProvenance }) {
+function TelemetryMetric({ label, value, unit, source }: { label: string, value: number | null, unit: string, source: SourceProvenance }) {
   return (
-    <div className="flex flex-col p-5 rounded-[20px] bg-white border border-border/20 transition-colors">
-      <span className="text-[10px] uppercase tracking-[0.1em] text-muted-foreground font-extrabold mb-3">{label}</span>
+    <div className="flex flex-col">
+      <span className="text-[10px] uppercase tracking-[0.1em] text-muted-foreground font-extrabold mb-2">{label}</span>
       <EvidenceFigure value={value === null ? null : Number(value.toFixed(1))} unit={unit} source={source} />
     </div>
   );

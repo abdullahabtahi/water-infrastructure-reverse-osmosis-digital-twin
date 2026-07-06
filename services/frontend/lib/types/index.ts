@@ -43,3 +43,75 @@ export interface UnitInspection {
   energyUsage: { value: number | null; source: SourceProvenance };
   daysSinceClean: number;
 }
+
+export interface EnvironmentalContext {
+  date: string;
+  electricityCostUsdPerKwh: number;
+  gridCarbonIntensityKgPerKwh: number;
+  ambientTemperatureC: number;
+}
+
+export type DeviationStatus = 'ok' | 'out-of-range' | 'unavailable';
+export type FidelityLevel = 'analytical' | 'high';
+
+export interface PhysicsDeviation {
+  unitId: string;
+  cycleId: string;
+  readingDate: string;
+  metric: string; // e.g., 'unit_n_delta_p', 'salt_passage', 'unit_recovery'
+  expectedClean: number | null;
+  actual: number | null;
+  deviation: number | null;
+  deviationPct: number | null;
+  status: DeviationStatus;
+  fidelity: FidelityLevel;
+  provenance: SourceProvenance;
+}
+
+export interface Forecast {
+  unitId: string;
+  timestamp: string;
+  foulingRatePerDay: number;
+  trendR2: number;
+  currentRise: number;
+  daysToClean: number | null;
+  forecastBandDays: number | null;
+  ciLower: number | null;
+  ciUpper: number | null;
+  forecastDrivers: string[];
+  foulingOnsetScore: number;
+  featureAttribution: string[];
+}
+
+export interface Anomaly {
+  signal: string;
+  deviation_from_baseline: number;
+  z_score: number;
+}
+
+export interface IndicatorSignal {
+  signal: string;
+  precision: number;
+  recall: number;
+  tps: number;
+  fps: number;
+  fns: number;
+  median_lead_days: number | null;
+  p25_lead_days: number | null;
+  p75_lead_days: number | null;
+  score: number;
+}
+
+export interface ValidationReport {
+  pre_registered_params: {
+    horizon_days: number;
+    min_sustained_warning_days: number;
+  };
+  total_cip_events: number;
+  detected_cycles: number;
+  baseline_error: number;
+  leading_indicator: IndicatorSignal;
+  alternative_indicators: IndicatorSignal[];
+  mechanism_mix: Record<string, number>;
+  data_limits: string[];
+}
