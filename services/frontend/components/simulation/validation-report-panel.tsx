@@ -149,17 +149,23 @@ export function ValidationReportPanel() {
               Mechanism Mix
             </h4>
             <div className="space-y-3">
-              {Object.entries(report.mechanism_mix).map(([mech, pct]) => (
+              {(() => {
+                const total = Object.values(report.mechanism_mix).reduce((sum, val) => sum + val, 0);
+                return Object.entries(report.mechanism_mix).map(([mech, count]) => {
+                  const pct = total > 0 ? (count / total) * 100 : 0;
+                  return (
                 <div key={mech}>
                   <div className="flex justify-between text-sm mb-1.5">
                     <span className="capitalize text-muted-foreground">{mech}</span>
-                    <span className="font-medium text-foreground">{(pct * 100).toFixed(0)}%</span>
+                    <span className="font-medium text-foreground">{pct.toFixed(0)}%</span>
                   </div>
                   <div className="h-1.5 w-full bg-border rounded-full overflow-hidden">
-                    <div className="h-full bg-primary/80 rounded-full" style={{ width: `${pct * 100}%` }} />
+                    <div className="h-full bg-primary/80 rounded-full" style={{ width: `${pct}%` }} />
                   </div>
                 </div>
-              ))}
+                  );
+                });
+              })()}
             </div>
           </div>
         </div>
