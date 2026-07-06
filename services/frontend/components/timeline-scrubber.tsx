@@ -20,9 +20,9 @@ export function TimelineScrubber() {
   };
 
   return (
-    <div className="flex-1 flex flex-col justify-center bg-background/50 backdrop-blur-md border border-border/40 rounded-[1.5rem] px-8 py-3 shadow-sm group transition-all hover:border-border">
+    <div className="flex-1 flex flex-col justify-center bg-white/95 backdrop-blur-md rounded-[24px] px-8 py-3 shadow-[0_4px_24px_rgba(0,0,0,0.06)] border border-white">
       <div className="flex items-center justify-between w-full mb-3">
-        <span className="text-[10px] text-muted-foreground font-medium tracking-widest uppercase">
+        <span className="text-[9px] text-muted-foreground font-extrabold tracking-widest uppercase">
           Timeline Scrubber
         </span>
         <span className="text-[10px] text-muted-foreground font-medium">
@@ -35,7 +35,7 @@ export function TimelineScrubber() {
         max={totalDays} 
         step={1} 
         onValueChange={handleSliderChange}
-        className="w-full cursor-grab active:cursor-grabbing"
+        className="w-full cursor-grab active:cursor-grabbing pb-0.5"
       />
     </div>
   );

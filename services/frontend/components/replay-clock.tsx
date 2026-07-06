@@ -3,7 +3,6 @@ import { useReplayStore } from "@/lib/store/replay-store";
 import { format, parseISO } from "date-fns";
 import { Play, Pause } from "lucide-react";
 import { useEffect } from "react";
-import { cn } from "@/lib/utils";
 
 export function ReplayClock() {
   const { currentDate, isPlaying, setIsPlaying, advanceTime } = useReplayStore();
@@ -13,7 +12,7 @@ export function ReplayClock() {
     if (isPlaying) {
       interval = setInterval(() => {
         advanceTime();
-      }, 500); // 1 tick per 500ms
+      }, 500);
     }
     return () => clearInterval(interval);
   }, [isPlaying, advanceTime]);
@@ -21,24 +20,17 @@ export function ReplayClock() {
   const dateStr = format(parseISO(currentDate), "MMM dd, yyyy");
 
   return (
-    <div className="flex items-center gap-4 bg-background/50 backdrop-blur-md border border-border/40 rounded-[1.5rem] px-5 py-3 shadow-sm">
-      <div className="flex items-center gap-2 pr-4 border-r border-border/50">
-        <button 
-          onClick={() => setIsPlaying(!isPlaying)}
-          aria-label={isPlaying ? "Pause simulation" : "Play simulation"}
-          className={cn(
-            "p-3 rounded-full transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:scale-105 active:scale-95",
-            isPlaying 
-              ? "bg-primary text-primary-foreground shadow-[0_4px_12px_rgba(20,101,196,0.25)]" 
-              : "bg-muted hover:bg-muted/80 text-foreground"
-          )}
-        >
-          {isPlaying ? <Pause className="size-4" /> : <Play className="size-4 translate-x-[1px]" />}
-        </button>
-      </div>
-      <div className="flex flex-col">
-        <span className="text-[9px] uppercase tracking-[0.2em] text-muted-foreground font-semibold">Simulation Clock</span>
-        <span className="font-mono text-[15px] font-bold tracking-tight text-foreground mt-0.5">{dateStr}</span>
+    <div className="flex items-center gap-4 bg-white/95 backdrop-blur-md rounded-[24px] px-2 py-2 shadow-[0_4px_24px_rgba(0,0,0,0.06)] border border-white">
+      <button 
+        onClick={() => setIsPlaying(!isPlaying)}
+        aria-label={isPlaying ? "Pause simulation" : "Play simulation"}
+        className="w-[42px] h-[42px] flex items-center justify-center rounded-full bg-[#1465c4] text-white hover:bg-[#1054a3] transition-all shadow-md flex-shrink-0 cursor-pointer active:scale-95"
+      >
+        {isPlaying ? <Pause className="size-4 fill-current" /> : <Play className="size-4 fill-current translate-x-[1px]" />}
+      </button>
+      <div className="flex flex-col pr-6">
+        <span className="text-[9px] uppercase tracking-widest text-muted-foreground font-extrabold mb-0.5">Simulation Clock</span>
+        <span className="font-sans text-[15px] font-black tracking-tight text-foreground">{dateStr}</span>
       </div>
     </div>
   );

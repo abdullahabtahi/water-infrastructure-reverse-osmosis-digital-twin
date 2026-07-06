@@ -7,6 +7,8 @@ import { fetchFleetStatus } from "@/lib/api";
 import { UnitHealth } from "@/lib/types";
 import { useReplayStore } from "@/lib/store/replay-store";
 import { ChevronRight, ChevronLeft } from "lucide-react";
+import { ReplayClock } from "./replay-clock";
+import { TimelineScrubber } from "./timeline-scrubber";
 
 export function PlantScene() {
   const { currentDate } = useReplayStore();
@@ -30,7 +32,7 @@ export function PlantScene() {
   };
 
   return (
-    <section className="relative w-full flex flex-col gap-6">
+    <section className="relative w-full flex flex-col gap-4">
       
       {/* 1. Backdrop */}
       <div className="relative w-full aspect-[21/9] max-h-[500px] rounded-[20px] overflow-hidden bg-white shadow-sm border border-border/40">
@@ -41,10 +43,16 @@ export function PlantScene() {
           className="object-cover mix-blend-multiply opacity-90"
           priority
         />
+        
+        {/* OVERLAPPING REPLAY CONTROLS */}
+        <div className="absolute top-4 left-4 right-4 flex gap-4 z-10">
+          <ReplayClock />
+          <TimelineScrubber />
+        </div>
       </div>
 
       {/* 2. Equipment Strip (Horizontal Scroll) */}
-      <div className="w-full flex flex-col gap-4 mt-4">
+      <div className="w-full flex flex-col gap-3 mt-1">
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center gap-4">
             <h2 className="text-[13px] font-extrabold uppercase tracking-[0.1em] text-foreground">
@@ -68,7 +76,7 @@ export function PlantScene() {
         
         <div 
           ref={scrollContainerRef}
-          className="flex gap-4 overflow-x-auto pb-6 scrollbar-hide snap-x pt-2"
+          className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide snap-x pt-1"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {/* Flat horizontal list instead of grid */}
