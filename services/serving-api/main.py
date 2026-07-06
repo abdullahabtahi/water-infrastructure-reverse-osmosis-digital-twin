@@ -28,7 +28,7 @@ DATA = HERE.parent / "source-tracing" / "data"
 app = FastAPI(title="RO Digital Twin — Serving API", version="0.1.0")
 app.add_middleware(  # let the Next.js dev server call us
     CORSMiddleware, allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
-    allow_methods=["GET"], allow_headers=["*"],
+    allow_methods=["GET", "POST"], allow_headers=["*"],
 )
 
 
@@ -352,8 +352,47 @@ def override_economics(unit_id: str, params: dict, date: str = Query(...)):
     return {"current": current, "history": history}
 
 
+@app.post("/api/assistant/ask")
+def assistant_ask(body: dict):
+    """Spec 007 — advise-only RO assistant. Answers an operator question over the 003–006
+    evidence, using Gemini when configured and a deterministic composer otherwise.
+
+    Body: {"question": str, "date"?: "YYYY-MM-DD", "unit"?: str}
+    Returns: {"answer": str, "mode": "gemini"|"deterministic", "backend": str, "unit": str|None}
+    """
+    question = (body.get("question") or "").strip()
+    date = body.get("date")
+    unit = body.get("unit")
+
+    import sys
+    sys.path.append(str(HERE.parent / "source-tracing"))
+    import assistant as A
+
+    fc = _csv("forecasts.csv")
+    att = _csv("attributions.csv")
+    econ = _csv("economics.csv")
+    if fc.empty:
+        return {"answer": "No backend outputs are available yet — run the pipeline first.",
+                "mode": "deterministic", "backend": "none", "unit": None}
+
+    # restrict evidence to the cycle active on `date` so the answer matches the viewed timeline
+    if date:
+        cycles = _get_active_cycles(date)
+        if cycles:
+            fc = fc[fc.apply(lambda r: cycles.get(r["unit_id"]) == r["cycle_id"], axis=1)]
+            econ = econ[econ.apply(lambda r: cycles.get(r["unit_id"]) == r["cycle_id"], axis=1)]
+        if fc.empty:  # date precedes any reading — fall back to the full history
+            fc = _csv("forecasts.csv")
+            econ = _csv("economics.csv")
+
+    res = A.answer(question, fc, att, econ, unit=unit)
+    if res.get("unit") is not None:
+        res["unit"] = str(res["unit"])
+    return res
+
+
 @app.get("/")
 def root():
     return {"service": "ro-serving-api", "endpoints": ["/api/fleet", "/api/inspection/{id}",
-                                                        "/api/alerts", "/api/timeline", "/api/physics-deviation/{unit_id}", "/api/forecast/{unit_id}", "/api/anomaly/{unit_id}", "/api/validation", "/api/economics/{unit_id}"]}
+                                                        "/api/alerts", "/api/timeline", "/api/physics-deviation/{unit_id}", "/api/forecast/{unit_id}", "/api/anomaly/{unit_id}", "/api/validation", "/api/economics/{unit_id}", "/api/assistant/ask"]}
 

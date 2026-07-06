@@ -108,7 +108,7 @@ export function InspectionDrawer() {
 
           <EarlyWarningPanel forecast={forecast} anomalies={anomalies} />
 
-          <AIAssistantPanel />
+          <AIAssistantPanel unitId={selectedUnitId} date={currentDate} />
         </div>
       )}
     </aside>

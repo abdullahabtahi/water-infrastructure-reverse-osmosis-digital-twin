@@ -94,3 +94,34 @@ export const fetchEconomicsOverrides = async (unitId: string, date: string, para
     return null;
   }
 };
+
+export type AssistantReply = {
+  answer: string;
+  mode: "gemini" | "deterministic";
+  backend: string;
+  unit: string | null;
+};
+
+// Spec 007 — advise-only RO assistant. Answers over the 003–006 evidence; the backend uses
+// Gemini when configured and a deterministic composer otherwise (so it never fails).
+export const askAssistant = async (
+  question: string,
+  opts?: { date?: string; unit?: string | null }
+): Promise<AssistantReply> => {
+  try {
+    const res = await fetch(`${API}/api/assistant/ask`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question, date: opts?.date, unit: opts?.unit ?? undefined }),
+    });
+    if (!res.ok) throw new Error(`${res.status}`);
+    return (await res.json()) as AssistantReply;
+  } catch {
+    return {
+      answer: "The assistant is offline right now. Please try again once the serving API is running.",
+      mode: "deterministic",
+      backend: "unreachable",
+      unit: opts?.unit ?? null,
+    };
+  }
+};
