@@ -2,6 +2,7 @@ import { generateMockFleet } from "../data/mock-fleet";
 import { getMockTimelineRange } from "../data/mock-timeline";
 import { getMockInspection } from "../data/mock-inspection";
 import { getMockAlerts } from "../data/mock-alerts";
+import { mockValidation } from "../data/mock-validation";
 
 // Real serving API (ro-serving-api). Falls back to mock data if the API is unreachable,
 // so the UI still renders offline. Set NEXT_PUBLIC_API_URL to override the default.
@@ -67,14 +68,7 @@ export const fetchAnomaly = async (unitId: string, date: string) => {
   }
 };
 
-export const fetchValidationReport = async () => {
-  try {
-    const res = await fetch(`${API}/api/validation`, { cache: "no-store" });
-    if (!res.ok) throw new Error(`${res.status}`);
-    return await res.json();
-  } catch {
-    return null;
-  }
-};
+export const fetchValidationReport = () =>
+  live(`/api/validation`, () => mockValidation);
 
 
