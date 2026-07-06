@@ -67,3 +67,14 @@ export const fetchAnomaly = async (unitId: string, date: string) => {
   }
 };
 
+export const fetchValidationReport = async () => {
+  try {
+    const res = await fetch(`${API}/api/validation`, { cache: "no-store" });
+    if (!res.ok) throw new Error(`${res.status}`);
+    return await res.json();
+  } catch {
+    return null;
+  }
+};
+
+

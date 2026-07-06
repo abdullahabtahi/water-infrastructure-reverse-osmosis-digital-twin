@@ -1,16 +1,18 @@
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Hammer } from "lucide-react";
+import { ValidationReportPanel } from "@/components/simulation/validation-report-panel";
 
-export default function StubPage() {
+export default function SimulationPage() {
   return (
-    <main className="flex-1 flex flex-col items-center justify-center p-8">
-      <Alert className="max-w-md bg-muted/10 border-border/50 shadow-sm rounded-2xl">
-        <Hammer className="h-4 w-4" />
-        <AlertTitle className="font-semibold tracking-tight">Under Construction</AlertTitle>
-        <AlertDescription className="text-muted-foreground">
-          This module is part of a future implementation phase.
-        </AlertDescription>
-      </Alert>
+    <main className="flex-1 overflow-y-auto p-8 bg-background">
+      <div className="max-w-6xl mx-auto space-y-8">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">Validation & Economics</h1>
+          <p className="text-muted-foreground mt-2">
+            Ground-truth performance validation and economic metrics.
+          </p>
+        </div>
+        
+        <ValidationReportPanel />
+      </div>
     </main>
   );
 }

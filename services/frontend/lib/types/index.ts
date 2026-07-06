@@ -89,3 +89,29 @@ export interface Anomaly {
   z_score: number;
 }
 
+export interface IndicatorSignal {
+  signal: string;
+  precision: number;
+  recall: number;
+  tps: number;
+  fps: number;
+  fns: number;
+  median_lead_days: number | null;
+  p25_lead_days: number | null;
+  p75_lead_days: number | null;
+  score: number;
+}
+
+export interface ValidationReport {
+  pre_registered_params: {
+    horizon_days: number;
+    min_sustained_warning_days: number;
+  };
+  total_cip_events: number;
+  detected_cycles: number;
+  baseline_error: number;
+  leading_indicator: IndicatorSignal;
+  alternative_indicators: IndicatorSignal[];
+  mechanism_mix: Record<string, number>;
+  data_limits: string[];
+}

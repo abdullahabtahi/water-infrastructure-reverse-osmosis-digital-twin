@@ -218,7 +218,18 @@ def get_anomaly(unit_id: str, date: str = Query(...)):
         return []
 
 
+@app.get("/api/validation")
+def validation():
+    import json
+    f = DATA / "validation_report.json"
+    if not f.exists():
+        return {}
+    with open(f, "r") as file:
+        return json.load(file)
+
+
+
 @app.get("/")
 def root():
     return {"service": "ro-serving-api", "endpoints": ["/api/fleet", "/api/inspection/{id}",
-                                                        "/api/alerts", "/api/timeline", "/api/physics-deviation/{unit_id}", "/api/forecast/{unit_id}", "/api/anomaly/{unit_id}"]}
+                                                        "/api/alerts", "/api/timeline", "/api/physics-deviation/{unit_id}", "/api/forecast/{unit_id}", "/api/anomaly/{unit_id}", "/api/validation"]}
