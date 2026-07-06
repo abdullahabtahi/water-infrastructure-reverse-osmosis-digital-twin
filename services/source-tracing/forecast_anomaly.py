@@ -17,9 +17,10 @@ twin of that contract; every output carries evidence (slope, R², band, which re
 from __future__ import annotations
 import numpy as np
 import pandas as pd
-from common import load_readings, DATA
+from common import load_readings, add_deviation, DATA
 
-SIGNAL = "unit_n_delta_p"
+# consume the 003 confound-free deviation, NOT the raw reading (004 FR-007 / SC-005)
+SIGNAL = "unit_n_delta_p_deviation"
 ACTION_RISE = 5.0        # ΔP rise over clean anchor that warrants a cleaning decision
 MAD_Z = 3.5              # anomaly threshold on robust z-score
 
@@ -76,7 +77,7 @@ def anomalies(cyc: pd.DataFrame) -> int:
 
 
 def main():
-    df = load_readings()
+    df = add_deviation(load_readings())   # 003 deviation bus
     fc_rows, anom_total = [], 0
     for (unit, cycle), cyc in df.groupby(["unit_id", "cycle_id"]):
         f = forecast_unit(cyc)

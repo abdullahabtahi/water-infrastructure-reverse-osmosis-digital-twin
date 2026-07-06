@@ -15,7 +15,9 @@ All six parameters below are editable.
 from __future__ import annotations
 import numpy as np
 import pandas as pd
-from common import load_readings, DATA
+from common import load_readings, add_deviation, DATA
+
+SIGNAL = "unit_n_delta_p_deviation"   # consume the 003 deviation bus, not raw ΔP
 
 # ── editable parameters ────────────────────────────────────────────
 PARAMS = dict(
@@ -38,9 +40,10 @@ def extra_sec_kwh_m3(dp_rise_psi: float, p: dict) -> float:
 
 def unit_economics(cyc: pd.DataFrame, p: dict) -> dict | None:
     cyc = cyc.sort_values("days_since_replacement")
-    y = cyc["unit_n_delta_p"].to_numpy(float)
-    if len(y) < 5:
+    y = cyc[SIGNAL].to_numpy(float)
+    if len(y) < 5 or np.isnan(y).all():
         return None
+    y = y[~np.isnan(y)]
     anchor = y[:5].mean()
     dp_rise_now = y[-1] - anchor
     # daily energy penalty at the current fouling level
@@ -66,7 +69,7 @@ def unit_economics(cyc: pd.DataFrame, p: dict) -> dict | None:
 
 
 def main():
-    df = load_readings()
+    df = add_deviation(load_readings())   # 003 deviation bus
     p = PARAMS
     rows = [r for (_, _), cyc in df.groupby(["unit_id", "cycle_id"])
             if (r := unit_economics(cyc, p))]
