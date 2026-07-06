@@ -71,4 +71,26 @@ export const fetchAnomaly = async (unitId: string, date: string) => {
 export const fetchValidationReport = () =>
   live(`/api/validation`, () => mockValidation);
 
+export const fetchEconomics = async (unitId: string, date: string) => {
+  try {
+    const res = await fetch(`${API}/api/economics/${unitId}?date=${date}`, { cache: "no-store" });
+    if (!res.ok) throw new Error(`${res.status}`);
+    return await res.json();
+  } catch {
+    return null;
+  }
+};
 
+export const fetchEconomicsOverrides = async (unitId: string, date: string, params: Record<string, number>) => {
+  try {
+    const res = await fetch(`${API}/api/economics/${unitId}/override?date=${date}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(params)
+    });
+    if (!res.ok) throw new Error(`${res.status}`);
+    return await res.json();
+  } catch {
+    return null;
+  }
+};

@@ -1,7 +1,10 @@
 'use client';
 
+import { useEffect, useState } from "react";
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 import { EvidenceFigure } from "../evidence-figure";
+import { useReplayStore } from "@/lib/store/replay-store";
+import { fetchEconomics } from "@/lib/api";
 
 const mockEconomicsData = [
   { day: 0, costDelta: -500 },
@@ -13,18 +16,52 @@ const mockEconomicsData = [
 ];
 
 export function BreakevenChart() {
+  const selectedUnitId = useReplayStore((state) => state.selectedUnitId);
+  const currentDate = useReplayStore((state) => state.currentDate);
+  const [data, setData] = useState<any>(null);
+
+  useEffect(() => {
+    if (selectedUnitId) {
+       fetchEconomics(selectedUnitId, currentDate).then(setData);
+    } else {
+       setData(null);
+    }
+  }, [selectedUnitId, currentDate]);
+
+  const chartData = data?.history ? data.history.map((row: any, idx: number) => ({
+    day: idx + 1,
+    costDelta: row.cum_energy_penalty_usd - row.cip_cost_usd
+  })) : mockEconomicsData;
+
+  const currentDayInfo = data?.current || null;
+
   return (
     <div className="flex flex-col h-full p-5 bg-white border border-border/40 rounded-[20px]">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h3 className="text-xs uppercase tracking-[0.2em] font-extrabold text-foreground mb-1">CIP Break-Even</h3>
-          <EvidenceFigure value={"+$400"} unit="/day" source="modeled" label="Penalty (Energy vs Chemical)" className="!gap-0" />
+          {currentDayInfo ? (
+            <>
+              <EvidenceFigure 
+                value={currentDayInfo.break_even_day ? `Day ${currentDayInfo.break_even_day}` : "N/A"} 
+                unit="" 
+                source={currentDayInfo.provenance} 
+                label={`Penalty: $${currentDayInfo.cum_energy_penalty_usd} vs CIP: $${currentDayInfo.cip_cost_usd}`} 
+                className="!gap-0" 
+              />
+              <div className="text-[9px] text-muted-foreground mt-1 uppercase tracking-wider">
+                Assumes ${currentDayInfo.params?.electricity_price_usd_kwh || 0.08}/kWh | {currentDayInfo.recommendation}
+              </div>
+            </>
+          ) : (
+            <div className="text-xs text-muted-foreground">Select a unit</div>
+          )}
         </div>
       </div>
       
       <div className="flex-1 w-full min-h-[200px]">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={mockEconomicsData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+          <AreaChart data={chartData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
             <defs>
               <linearGradient id="colorCost" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#F59E0B" stopOpacity={0.3}/>
@@ -46,3 +83,4 @@ export function BreakevenChart() {
     </div>
   );
 }
+

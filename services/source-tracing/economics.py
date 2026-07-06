@@ -58,14 +58,27 @@ def unit_economics(cyc: pd.DataFrame, p: dict) -> dict | None:
     # delta-first recommendation: is today's daily penalty already > amortized CIP over a cycle?
     breakeven_daily = cip_total / max(len(y), 1)
     recommend = "CLEAN NOW" if daily_penalty > breakeven_daily and dp_rise_now > WARN_RISE else "WAIT"
-    return dict(unit_id=cyc["unit_id"].iloc[0], bank_id=cyc["bank_id"].iloc[0],
+    
+    break_even_day = None
+    if daily_penalty > 0:
+        d_squared = cip_total * len(y) / daily_penalty
+        break_even_day = int(np.sqrt(d_squared))
+        
+    unit_id = cyc["unit_id"].iloc[0]
+    provenance = "measured" if unit_id.startswith("F") or unit_id.startswith("G") else "modeled"
+    credibility = "high" if provenance == "measured" else "medium"
+
+    return dict(unit_id=unit_id, bank_id=cyc["bank_id"].iloc[0],
                 cycle_id=int(cyc["cycle_id"].iloc[0]),
                 dp_rise_psi=round(float(dp_rise_now), 2),
                 extra_sec_kwh_m3=round(float(extra_sec), 4),
                 daily_energy_penalty_usd=round(float(daily_penalty), 2),
                 cum_energy_penalty_usd=round(float(cum_penalty), 2),
                 cip_cost_usd=round(cip_total, 2),
-                recommendation=recommend)
+                recommendation=recommend,
+                break_even_day=break_even_day,
+                provenance=provenance,
+                credibility=credibility)
 
 
 def main():
