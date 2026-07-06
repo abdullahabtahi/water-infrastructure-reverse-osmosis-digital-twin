@@ -272,7 +272,88 @@ def validation():
         return json.load(file)
 
 
+@app.get("/api/economics/{unit_id}")
+def get_economics(unit_id: str, date: str = Query(...)):
+    econ = _csv("economics.csv")
+    cycles = _get_active_cycles(date)
+    cyc_id = cycles.get(unit_id)
+    if not cyc_id:
+        return None
+    e = econ[(econ["unit_id"] == unit_id) & (econ["cycle_id"] == cyc_id)]
+    if e.empty:
+        return None
+    
+    import math
+    
+    def clean_dict(d):
+        for k, v in d.items():
+            if isinstance(v, float) and math.isnan(v):
+                d[k] = None
+        return d
+        
+    history = [clean_dict(row.to_dict()) for _, row in e.iterrows()]
+    current = history[-1]
+    
+    return {"current": current, "history": history}
+
+
+@app.post("/api/economics/{unit_id}/override")
+def override_economics(unit_id: str, params: dict, date: str = Query(...)):
+    readings = _csv("readings.csv")
+    cycles = _get_active_cycles(date)
+    cyc_id = cycles.get(unit_id)
+    if not cyc_id:
+        return {"error": "no data"}
+        
+    cyc = readings[(readings["unit_id"] == unit_id) & (readings["cycle_id"] == cyc_id) & (readings["reading_date"] <= date)].copy()
+    if cyc.empty:
+        return {"error": "no cycle data found for date"}
+        
+    import sys
+    sys.path.append(str(HERE.parent / "source-tracing"))
+    from common import add_deviation
+    from economics import unit_economics, PARAMS
+    
+    cyc = add_deviation(cyc)
+    
+    p = PARAMS.copy()
+    for k, v in params.items():
+        if k in p and v is not None:
+            p[k] = float(v)
+            
+    # Compute economics for each prefix of the cycle to build history
+    history = []
+    cyc_sorted = cyc.sort_values("days_since_replacement")
+    
+    for i in range(1, len(cyc_sorted) + 1):
+        sub_cyc = cyc_sorted.iloc[:i]
+        res = unit_economics(sub_cyc, p)
+        if res is not None:
+            import math
+            for k, v in res.items():
+                if isinstance(v, float) and math.isnan(v):
+                    res[k] = None
+            history.append(res)
+            
+    if not history:
+        return {"error": "could not calculate economics"}
+        
+    current = history[-1]
+        
+    # Check if recommendation flipped
+    default_res = unit_economics(cyc, PARAMS)
+    if default_res:
+        current["recommendation_flipped"] = (current["recommendation"] != default_res["recommendation"])
+    else:
+        current["recommendation_flipped"] = False
+        
+    current["params"] = p
+    
+    return {"current": current, "history": history}
+
+
 @app.get("/")
 def root():
     return {"service": "ro-serving-api", "endpoints": ["/api/fleet", "/api/inspection/{id}",
-                                                        "/api/alerts", "/api/timeline", "/api/physics-deviation/{unit_id}", "/api/forecast/{unit_id}", "/api/anomaly/{unit_id}", "/api/validation"]}
+                                                        "/api/alerts", "/api/timeline", "/api/physics-deviation/{unit_id}", "/api/forecast/{unit_id}", "/api/anomaly/{unit_id}", "/api/validation", "/api/economics/{unit_id}"]}
+
