@@ -23,13 +23,13 @@ export function PhysicsDeviationPanel({ deviations }: PhysicsDeviationPanelProps
   };
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="text-xs uppercase tracking-widest text-muted-foreground font-semibold flex items-center gap-2">
+    <section className="flex flex-col gap-5">
+      <h3 className="text-[11px] uppercase tracking-[0.2em] font-bold text-muted-foreground/80 flex items-center gap-2">
         <div className="w-1.5 h-1.5 rounded-full bg-indigo-500/50" /> Physics Deviation
-      </div>
+      </h3>
       
-      <div className="grid grid-cols-1 gap-3">
-        {deviations.map((dev) => {
+      <div className="flex flex-col bg-white border border-border/20 rounded-[20px] overflow-hidden">
+        {deviations.map((dev, idx) => {
           const config = getMetricConfig(dev.metric);
           const isOOR = dev.status === "out-of-range";
           const isUnavailable = dev.status === "unavailable";
@@ -38,27 +38,25 @@ export function PhysicsDeviationPanel({ deviations }: PhysicsDeviationPanelProps
             <div 
               key={dev.metric} 
               className={cn(
-                "p-4 rounded-xl border flex flex-col gap-3 relative overflow-hidden transition-colors",
-                isOOR ? "bg-destructive/5 border-destructive/20" : "bg-muted/20 border-border/10",
+                "flex flex-col p-6 border-b border-border/10 last:border-0 transition-colors",
                 isUnavailable && "opacity-50 grayscale"
               )}
             >
-              {isOOR && (
-                <div className="absolute top-0 right-0 w-12 h-12 flex items-start justify-end p-2">
-                  <AlertTriangle className="w-3 h-3 text-destructive" />
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  {config.icon}
+                  <span className="text-[10px] font-extrabold uppercase tracking-[0.1em]">{config.label}</span>
                 </div>
-              )}
-              
-              <div className="flex items-center gap-2 text-muted-foreground">
-                {config.icon}
-                <span className="text-xs font-medium uppercase tracking-wider">{config.label}</span>
+                {isOOR && (
+                  <AlertTriangle className="w-4 h-4 text-destructive" />
+                )}
               </div>
               
               {!isUnavailable ? (
                 <div className="flex items-end justify-between">
                   <div className="flex flex-col">
-                    <span className="text-2xl font-normal tracking-tight">
-                      {dev.actual?.toFixed(2)} <span className="text-sm text-muted-foreground font-normal">{config.unit}</span>
+                    <span className="text-2xl font-medium tracking-tight text-foreground">
+                      {dev.actual?.toFixed(2)} <span className="text-sm text-muted-foreground ml-0.5">{config.unit}</span>
                     </span>
                     <span className="text-xs text-muted-foreground mt-1">
                       Expected clean: {dev.expectedClean?.toFixed(2)} {config.unit}
@@ -71,7 +69,7 @@ export function PhysicsDeviationPanel({ deviations }: PhysicsDeviationPanelProps
                       dev.deviation && dev.deviation > 0 ? (dev.metric === "unit_recovery" ? "text-destructive" : "text-warning") : "text-success",
                       dev.deviation && dev.deviation < 0 ? (dev.metric === "unit_recovery" ? "text-warning" : "text-success") : ""
                     )}>
-                      {dev.deviation && dev.deviation > 0 ? "+" : ""}{dev.deviation?.toFixed(2)} {config.unit}
+                      {dev.deviation && dev.deviation > 0 ? "+" : ""}{dev.deviation?.toFixed(2)} <span className="text-sm">{config.unit}</span>
                     </span>
                     <span className="text-xs text-muted-foreground uppercase tracking-wide mt-1">
                       Deviation
@@ -85,12 +83,12 @@ export function PhysicsDeviationPanel({ deviations }: PhysicsDeviationPanelProps
               )}
               
               {/* Provenance footer */}
-              <div className="flex items-center justify-between mt-1 pt-3 border-t border-border/10">
-                <div className="text-xs uppercase tracking-widest text-muted-foreground/70">
+              <div className="flex items-center justify-between mt-4 pt-3 border-t border-border/10">
+                <div className="text-[10px] uppercase tracking-widest text-muted-foreground/70 font-semibold">
                   {dev.provenance} • {dev.fidelity} baseline
                 </div>
                 {dev.deviationPct !== null && !isUnavailable && (
-                  <div className="text-xs uppercase tracking-widest text-muted-foreground/70">
+                  <div className="text-[10px] uppercase tracking-widest text-muted-foreground/70 font-semibold">
                     {Math.abs(dev.deviationPct!).toFixed(1)}% delta
                   </div>
                 )}
@@ -99,6 +97,6 @@ export function PhysicsDeviationPanel({ deviations }: PhysicsDeviationPanelProps
           );
         })}
       </div>
-    </div>
+    </section>
   );
 }

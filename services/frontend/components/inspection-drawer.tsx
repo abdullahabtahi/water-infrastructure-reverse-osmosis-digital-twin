@@ -100,6 +100,7 @@ export function InspectionDrawer() {
             unitHealth={unitHealth}
             activeAlerts={activeAlerts}
             inspection={inspection}
+            forecast={forecast}
             onClose={handleClose}
           />
           
