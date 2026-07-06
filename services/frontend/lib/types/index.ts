@@ -43,3 +43,10 @@ export interface UnitInspection {
   energyUsage: { value: number | null; source: SourceProvenance };
   daysSinceClean: number;
 }
+
+export interface EnvironmentalContext {
+  date: string;
+  electricityCostUsdPerKwh: number;
+  gridCarbonIntensityKgPerKwh: number;
+  ambientTemperatureC: number;
+}

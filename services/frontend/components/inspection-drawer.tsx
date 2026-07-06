@@ -2,8 +2,8 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { useReplayStore } from "@/lib/store/replay-store";
-import { fetchUnitInspection, fetchAlerts, fetchFleetStatus } from "@/lib/api";
-import { UnitInspection, AlertItem, UnitHealth } from "@/lib/types";
+import { fetchUnitInspection, fetchAlerts, fetchFleetStatus, fetchEnvironmentContext } from "@/lib/api";
+import { UnitInspection, AlertItem, UnitHealth, EnvironmentalContext } from "@/lib/types";
 import { BotMessageSquare, Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FleetSummaryPanel } from "./inspection/fleet-summary-panel";
@@ -11,12 +11,34 @@ import { UnitDetailSection } from "./inspection/unit-detail-section";
 import { AlertsFeed } from "./inspection/alerts-feed";
 import { AIAssistantPanel } from "./inspection/ai-assistant-panel";
 
+function EnvContextPanel({ env }: { env: EnvironmentalContext | null }) {
+  if (!env) return null;
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="text-xs uppercase tracking-widest text-muted-foreground font-semibold flex items-center gap-2">
+        <div className="w-1.5 h-1.5 rounded-full bg-blue-500/50" /> Environmental Context
+      </div>
+      <div className="p-4 bg-muted/30 border border-border/20 rounded-xl grid grid-cols-2 gap-4">
+        <div>
+          <div className="text-[10px] text-muted-foreground mb-1 uppercase tracking-wide">Ambient Temp (7d)</div>
+          <div className="text-xl font-medium">{env.ambientTemperatureC.toFixed(1)}°C</div>
+        </div>
+        <div>
+          <div className="text-[10px] text-muted-foreground mb-1 uppercase tracking-wide">Energy Cost</div>
+          <div className="text-xl font-medium">${env.electricityCostUsdPerKwh.toFixed(2)}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function InspectionDrawer() {
   const { selectedUnitId, currentDate, setSelectedUnitId } = useReplayStore();
   
   const [inspection, setInspection] = useState<UnitInspection | null>(null);
   const [alerts, setAlerts] = useState<AlertItem[]>([]);
   const [fleetHealth, setFleetHealth] = useState<UnitHealth[]>([]);
+  const [envContext, setEnvContext] = useState<EnvironmentalContext | null>(null);
   
   const unitHealth = useMemo(() => fleetHealth.find(u => u.id === selectedUnitId) || null, [fleetHealth, selectedUnitId]);
   const activeAlerts = useMemo(() => alerts.filter(a => a.unitId === selectedUnitId), [alerts, selectedUnitId]);
@@ -27,6 +49,7 @@ export function InspectionDrawer() {
   useEffect(() => {
     fetchAlerts(currentDate).then(setAlerts);
     fetchFleetStatus(currentDate).then(setFleetHealth);
+    fetchEnvironmentContext(currentDate).then(setEnvContext);
 
     if (selectedUnitId) {
       fetchUnitInspection(selectedUnitId, currentDate).then(setInspection);
@@ -65,6 +88,8 @@ export function InspectionDrawer() {
             inspection={inspection}
             onClose={handleClose}
           />
+          
+          <EnvContextPanel env={envContext} />
 
           <AIAssistantPanel />
         </div>

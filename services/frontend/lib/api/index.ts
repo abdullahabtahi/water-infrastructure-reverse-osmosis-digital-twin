@@ -28,3 +28,11 @@ export const fetchUnitInspection = (unitId: string, date: string) =>
 
 export const fetchAlerts = (date: string) =>
   live(`/api/alerts?date=${date}`, () => getMockAlerts(date));
+
+export const fetchEnvironmentContext = (date: string) =>
+  live(`/api/env?date=${date}`, () => ({
+    date,
+    electricityCostUsdPerKwh: 0.12, // approx 12 cents
+    gridCarbonIntensityKgPerKwh: 0.35, // approx 350 g/kWh
+    ambientTemperatureC: 22.5,
+  }));
