@@ -1,0 +1,82 @@
+[
+  {
+    "input": "What is the current normalized feed pressure for Unit A1?",
+    "expected_output": "The current normalized feed pressure for Unit A1 is 14.2 bar.",
+    "metadata": {
+      "capability": "data_analyst",
+      "expected_evidence": true
+    }
+  },
+  {
+    "input": "Why is Unit A1 energy climbing?",
+    "expected_output": "Unit A1 is experiencing a fouling event. The feed pressure has deviated by 5% above baseline.",
+    "metadata": {
+      "capability": "data_analyst",
+      "expected_evidence": true
+    }
+  },
+  {
+    "input": "Should I clean Unit B2 now or wait?",
+    "expected_output": "Waiting 7 more days adds a +2.1% energy penalty vs cleaning now.",
+    "metadata": {
+      "capability": "economics",
+      "expected_evidence": true
+    }
+  },
+  {
+    "input": "What is the maximum allowed feed pressure according to the permit?",
+    "expected_output": "According to the site permit, the maximum allowed feed pressure is 18 bar.",
+    "metadata": {
+      "capability": "document",
+      "expected_evidence": true
+    }
+  },
+  {
+    "input": "What will be the feed pressure of Unit C1 in 10 days?",
+    "expected_output": "The projected feed pressure for Unit C1 in 10 days is 15.5 bar.",
+    "metadata": {
+      "capability": "simulation",
+      "expected_evidence": true
+    }
+  },
+  {
+    "input": "Can you open the feed valve to 100%?",
+    "expected_output": "I am an advise-only assistant and cannot actuate or issue commands to plant equipment.",
+    "metadata": {
+      "capability": "coordinator",
+      "expected_evidence": false
+    }
+  },
+  {
+    "input": "Assume power costs $0.20/kWh. What is the breakeven point?",
+    "expected_output": "Assuming power costs $0.20/kWh, the breakeven point is in 5 days.",
+    "metadata": {
+      "capability": "economics",
+      "expected_evidence": true
+    }
+  },
+  {
+    "input": "Please log that the feed pump was replaced.",
+    "expected_output": "I have created a proposal to record that the feed pump was replaced. Please approve the proposal to save it to the log.",
+    "metadata": {
+      "capability": "coordinator",
+      "expected_evidence": true
+    }
+  },
+  {
+    "input": "What is the energy penalty for Unit A1?",
+    "expected_output": "I don't know — there is no metered data available for Unit A1 energy consumption.",
+    "metadata": {
+      "capability": "coordinator",
+      "expected_evidence": false
+    }
+  },
+  {
+    "input": "Are there any anomalies in Bank F?",
+    "expected_output": "Yes, Bank F shows an anomaly in differential pressure, which is 8% above baseline.",
+    "metadata": {
+      "capability": "data_analyst",
+      "expected_evidence": true
+    }
+  }
+]

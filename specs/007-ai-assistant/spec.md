@@ -120,7 +120,7 @@ The assistant informs decisions; it never makes them for the plant. It is read-o
 - **FR-011**: The assistant MUST NOT quote an accuracy or performance claim that has not yet been validated by the run that produces it — evidence first, claim second.
 - **FR-012**: When a question pushes beyond a capability's supported range (e.g. a horizon past the supported trajectory), the assistant MUST flag the limit and MUST NOT silently extrapolate a figure.
 - **FR-013**: The assistant MUST be advise-only and read-only by default and MUST NEVER actuate or issue any command to plant equipment under any circumstance.
-- **FR-014**: Any action that would write a record (e.g. logging a recommendation or recording a decision) MUST be gated behind explicit human approval — the assistant proposes, a human approves, and only then is the record written.
+- **FR-014**: Any action that would write a record (e.g. logging a recommendation or recording a decision) MUST be gated behind explicit human approval — the assistant proposes, a human approves, and only then is the record written. Approval is surfaced as an **inline Approve / Dismiss chip** rendered at the bottom of the proposal message bubble in the chat panel; tapping Approve triggers the gated `record_decision` tool.
 - **FR-015**: When a proposed record-writing action is not approved, the assistant MUST leave no record written and no state changed.
 - **FR-016**: When capabilities disagree (e.g. a forecast trend versus an anomaly signal), the assistant MUST surface the tension with each side's evidence rather than silently selecting one as settled.
 - **FR-017**: The assistant MUST preserve, unaltered, the honesty framing of figures it relays from the economics capability — leading with deltas/trade-offs and attaching assumptions and an uncertainty caveat to any absolute cost-of-water figure rather than quoting it bare.
@@ -152,6 +152,8 @@ The assistant informs decisions; it never makes them for the plant. It is read-o
 - **SC-007**: Every quantitative figure in an answer is traceable to the capability/result that produced it — 100% source-trace coverage on surfaced figures.
 - **SC-008**: For answers relaying economic figures, deltas/trade-offs are led with and any absolute cost-of-water figure carries its assumptions and an uncertainty caveat in 100% of such answers; zero bare absolutes are surfaced.
 - **SC-009**: Under adversarial input designed to induce fabrication, actuation, or an ungated write, the assistant's guardrails hold in 100% of attempts — no invented number, no actuation, no ungated record-writing.
+- **SC-010**: Simple Q&A answers (single-capability routing) complete within **< 5 s P95** end-to-end, measured from question submission to first complete token rendered; verified via `adk eval` trace analysis and Cloud Trace.
+- **SC-011**: Multi-capability or simulation answers complete within **< 15 s P95** end-to-end; semantic-cache hits on non-time-sensitive questions return within **< 1 s P95**.
 
 ## Assumptions
 
@@ -164,6 +166,7 @@ The assistant informs decisions; it never makes them for the plant. It is read-o
 - **Live voice / bidirectional streaming is out of scope**: The assistant is request/response conversational; live streaming is explicitly not part of this feature.
 - **"Now" means as-of the replay clock**: Consistent with the twin's honest-maturity principle, current-state answers are grounded in the live-replay clock, and the assistant does not imply a live plant connection that does not exist.
 - **Conversational assumption overrides for economics ride on this layer**: When an operator overrides a cost assumption in dialogue, this feature honors it in the conversation and reflects it in the answer; the economics feature defines how the figure is recomputed, and the memory mechanism for persisting an override is an implementation concern for planning.
+- **Conversation persistence — session-scoped + Memory Bank facts only**: Full conversation transcripts are NOT stored durably. Transcript lives for the lifetime of the current Agent Runtime Session only. Cross-session persistence is limited to **Memory Bank facts** (operator preferences, plant-specific facts, confirmed cost overrides) — not raw chat history. Conclusions and approved decisions are durably recorded only via the gated `record_decision` tool after explicit human approval. This minimises storage cost and privacy surface while keeping operator context alive where it matters.
 
 ## Dependencies
 
@@ -174,3 +177,15 @@ The assistant informs decisions; it never makes them for the plant. It is read-o
 - **Feature 006 — Operating-Cost & Cleaning Economics (required upstream)**: Supplies the cost figures, clean-now-vs-wait deltas, measured/modeled labels, and inline assumptions the assistant relays with its economics answers — always delta-led, never bare absolutes. It also supplies any modeled scaling-mitigation (antiscalant/pH/sustainable-recovery) economics the assistant surfaces as advise-only recommendations, labeled modeled.
 - **Provisioned GCP environment (required, user-provided)**: The assistant's orchestration runtime, conversation state, long-term memory, and access to the underlying capabilities require a provisioned cloud environment already in place. That provisioning is owned by the future Cloud Platform feature (Feature 009) and **must be set up by the user**; it is a prerequisite, not an open question for this spec.
 - **Downstream consumer**: The operator-facing visual twin surfaces the assistant's answers (and its evidence, source traces, and honest non-answers) in the interface — the conversational diagnostics reach the operator through that surface with all guardrails intact.
+- **Chat UI delivery — embedded panel (a2ui pattern)**: The assistant is delivered as a globally-accessible embedded slide-in panel (not a dedicated page, not a separate app). The panel is available on all routes. On the `/twin` page, opening the assistant panel does not dismiss the inspector or the plant-scene; instead the plant-scene **scales down proportionally** (remains visible and interactive at reduced size) to share horizontal space with both the inspector panel and the assistant panel simultaneously. Implementation uses `a2ui` streaming SSE components and the Agent Runtime Interactions API for streaming + approval-gate rendering.
+- **HITL approval gate UX — inline chip**: When the assistant proposes a record-writing action, it renders an **Approve / Dismiss** button pair inline at the bottom of its proposal message bubble. Tapping Approve fires the gated `record_decision` tool; Dismiss cancels and leaves no record written. No modal, no separate review page. This is the native `a2ui` HITL pattern.
+
+## Clarifications
+
+### Session 2026-07-06
+
+- Q: How is the assistant chat UI delivered to operators? → A: Option B — Embedded slide-in panel accessible from all pages. On `/twin`, plant-scene **scales down proportionally** (stays visible and interactive at reduced size, does not disappear) so inspector and assistant panels coexist side-by-side. Implemented via `a2ui` / Agent Runtime Interactions API (streaming SSE + HITL approval-gate components).
+- Q: Do user roles (operator / engineer / manager) affect assistant access or trust level? → A: Option A — Single role for MVP; all authenticated users are treated as operator-level with equal access. Role differentiation is deferred to a future iteration.
+- Q: How does the operator approve a proposed record-writing action? → A: Option A — Inline Approve / Dismiss chip rendered at the bottom of the proposal message bubble; one tap approves (fires gated `record_decision` tool), one tap dismisses without writing.
+- Q: Are the latency targets (< 5 s Q&A, < 15 s simulation) contractual or aspirational? → A: Option A — Contractual acceptance gates (SC-010/SC-011). < 5 s P95 for single-capability Q&A; < 15 s P95 for multi-capability/simulation; < 1 s P95 for semantic-cache hits. Verified via `adk eval` + Cloud Trace.
+- Q: How long is conversation history retained? → A: Option B — Session-scoped only (Agent Runtime Session lifetime). Cross-session persistence via Memory Bank facts only (preferences, plant facts, cost overrides) — no raw transcript storage. Approved decisions written durably only via gated `record_decision` tool.
