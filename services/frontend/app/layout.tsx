@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Manrope } from "next/font/google";
 import "./globals.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { NavHeader } from "@/components/nav-header";
 
 const manrope = Manrope({
   variable: "--font-sans",
@@ -22,7 +23,7 @@ export default function RootLayout({
     <html lang="en" className={`${manrope.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
         <TooltipProvider>
-          {/* NavHeader slot */}
+          <NavHeader />
           {children}
         </TooltipProvider>
       </body>
