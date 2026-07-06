@@ -2,14 +2,16 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { useReplayStore } from "@/lib/store/replay-store";
-import { fetchUnitInspection, fetchAlerts, fetchFleetStatus, fetchEnvironmentContext } from "@/lib/api";
-import { UnitInspection, AlertItem, UnitHealth, EnvironmentalContext } from "@/lib/types";
+import { fetchUnitInspection, fetchAlerts, fetchFleetStatus, fetchEnvironmentContext, fetchPhysicsDeviation, fetchForecast, fetchAnomaly } from "@/lib/api";
+import { UnitInspection, AlertItem, UnitHealth, EnvironmentalContext, PhysicsDeviation, Forecast, Anomaly } from "@/lib/types";
 import { BotMessageSquare, Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FleetSummaryPanel } from "./inspection/fleet-summary-panel";
 import { UnitDetailSection } from "./inspection/unit-detail-section";
 import { AlertsFeed } from "./inspection/alerts-feed";
 import { AIAssistantPanel } from "./inspection/ai-assistant-panel";
+import { PhysicsDeviationPanel } from "./inspection/physics-deviation-panel";
+import { EarlyWarningPanel } from "./inspection/early-warning-panel";
 
 function EnvContextPanel({ env }: { env: EnvironmentalContext | null }) {
   if (!env) return null;
@@ -20,11 +22,11 @@ function EnvContextPanel({ env }: { env: EnvironmentalContext | null }) {
       </div>
       <div className="p-4 bg-muted/30 border border-border/20 rounded-xl grid grid-cols-2 gap-4">
         <div>
-          <div className="text-[10px] text-muted-foreground mb-1 uppercase tracking-wide">Ambient Temp (7d)</div>
+          <div className="text-xs text-muted-foreground mb-1 uppercase tracking-wide">Ambient Temp (7d)</div>
           <div className="text-xl font-medium">{env.ambientTemperatureC.toFixed(1)}°C</div>
         </div>
         <div>
-          <div className="text-[10px] text-muted-foreground mb-1 uppercase tracking-wide">Energy Cost</div>
+          <div className="text-xs text-muted-foreground mb-1 uppercase tracking-wide">Energy Cost</div>
           <div className="text-xl font-medium">${env.electricityCostUsdPerKwh.toFixed(2)}</div>
         </div>
       </div>
@@ -39,6 +41,9 @@ export function InspectionDrawer() {
   const [alerts, setAlerts] = useState<AlertItem[]>([]);
   const [fleetHealth, setFleetHealth] = useState<UnitHealth[]>([]);
   const [envContext, setEnvContext] = useState<EnvironmentalContext | null>(null);
+  const [physicsDeviations, setPhysicsDeviations] = useState<PhysicsDeviation[]>([]);
+  const [forecast, setForecast] = useState<Forecast | null>(null);
+  const [anomalies, setAnomalies] = useState<Anomaly[]>([]);
   
   const unitHealth = useMemo(() => fleetHealth.find(u => u.id === selectedUnitId) || null, [fleetHealth, selectedUnitId]);
   const activeAlerts = useMemo(() => alerts.filter(a => a.unitId === selectedUnitId), [alerts, selectedUnitId]);
@@ -53,8 +58,14 @@ export function InspectionDrawer() {
 
     if (selectedUnitId) {
       fetchUnitInspection(selectedUnitId, currentDate).then(setInspection);
+      fetchPhysicsDeviation(selectedUnitId, currentDate).then(setPhysicsDeviations);
+      fetchForecast(selectedUnitId, currentDate).then(setForecast);
+      fetchAnomaly(selectedUnitId, currentDate).then(setAnomalies);
     } else {
       setInspection(null);
+      setPhysicsDeviations([]);
+      setForecast(null);
+      setAnomalies([]);
     }
   }, [selectedUnitId, currentDate]);
 
@@ -71,12 +82,15 @@ export function InspectionDrawer() {
       "w-[400px] xl:w-[460px] h-full relative z-10"
     )}>
       {!selectedUnitId ? (
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 flex flex-col overflow-y-auto pb-8 gap-8">
           <FleetSummaryPanel 
             fleetHealth={fleetHealth}
             fleetAlerts={fleetAlerts}
             watchUnits={watchUnits}
           />
+          <div className="px-6">
+            <EnvContextPanel env={envContext} />
+          </div>
           <AlertsFeed alerts={fleetAlerts} />
         </div>
       ) : (
@@ -89,7 +103,9 @@ export function InspectionDrawer() {
             onClose={handleClose}
           />
           
-          <EnvContextPanel env={envContext} />
+          <PhysicsDeviationPanel deviations={physicsDeviations} />
+
+          <EarlyWarningPanel forecast={forecast} anomalies={anomalies} />
 
           <AIAssistantPanel />
         </div>
