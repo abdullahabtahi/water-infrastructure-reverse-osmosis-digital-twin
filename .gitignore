@@ -101,3 +101,6 @@ dataverse_files/
 services/agent/payload.json
 services/agent/payload_full.json
 services/frontend/test_bq.js
+
+# --- Internal-only docs (not for the public repo) ---
+PRODUCT.md
