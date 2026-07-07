@@ -81,3 +81,23 @@ ipython_config.py
 # Not version-controlled. Source: Harvard Dataverse "orange_county_ro".
 # See docs/02-data-pipeline.md for provenance and download instructions.
 dataverse_files/
+
+# --- AI tooling scaffolding (not product code) ---
+# Duplicated cloud/agent skill libraries and coding-assistant scaffolding pulled in during
+# development. Keep .specify/memory/constitution.md — that one is real project content.
+/.agents/
+/.claude/
+/agent/
+/.github/skills/
+/.github/agents/
+/.github/prompts/
+/.specify/
+!/.specify/memory/
+!/.specify/memory/constitution.md
+/.impeccable/
+/skills-lock.json
+
+# --- Scratch / debug files (not part of the app) ---
+services/agent/payload.json
+services/agent/payload_full.json
+services/frontend/test_bq.js
