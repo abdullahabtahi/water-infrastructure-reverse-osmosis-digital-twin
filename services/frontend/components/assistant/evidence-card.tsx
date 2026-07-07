@@ -60,7 +60,7 @@ export function EvidenceCard({ trace }: Props) {
                 <div key={signal} className="space-y-1">
                   <div className="flex justify-between text-[11px]">
                     <span className="font-mono">{signal}</span>
-                    <span className="font-mono">{typeof weight === 'number' ? weight.toFixed(2) : weight}</span>
+                    <span className="font-mono">{typeof weight === 'number' ? weight.toFixed(2) : String(weight)}</span>
                   </div>
                   <div className="w-full bg-secondary h-1.5 rounded-full overflow-hidden">
                     <div 

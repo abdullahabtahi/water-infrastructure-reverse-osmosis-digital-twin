@@ -53,6 +53,7 @@ export function PlantScene() {
           src={currentMainImage}
           alt="Plant Overview"
           fill
+          sizes="(min-width: 1280px) 60vw, 100vw"
           className="object-cover object-[center_35%] mix-blend-multiply opacity-90 animate-in fade-in duration-500"
           priority
         />

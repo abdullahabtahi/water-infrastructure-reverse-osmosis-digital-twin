@@ -79,10 +79,10 @@ export function InspectionDrawer() {
       aria-label="Inspection Pane"
       className={cn(
       "shrink-0 bg-background/50 border-l border-border/20 flex flex-col transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)]",
-      "w-[400px] xl:w-[460px] h-full relative z-10"
+      "w-[400px] xl:w-[460px] h-full relative z-10 min-h-0"
     )}>
       {!selectedUnitId ? (
-        <div className="flex-1 flex flex-col overflow-y-auto pb-8 gap-8">
+        <div className="flex-1 flex flex-col overflow-y-auto pb-8 gap-8 min-h-0">
           <FleetSummaryPanel 
             fleetHealth={fleetHealth}
             fleetAlerts={fleetAlerts}
@@ -94,21 +94,23 @@ export function InspectionDrawer() {
           <AlertsFeed alerts={fleetAlerts} />
         </div>
       ) : (
-        <div className="flex-1 flex flex-col overflow-y-auto p-10 gap-12 animate-in fade-in slide-in-from-right-8 fill-mode-both duration-700" key={selectedUnitId}>
-          <UnitDetailSection 
-            selectedUnitId={selectedUnitId}
-            unitHealth={unitHealth}
-            activeAlerts={activeAlerts}
-            inspection={inspection}
-            forecast={forecast}
-            onClose={handleClose}
-          />
-          
-          <PhysicsDeviationPanel deviations={physicsDeviations} />
+        <div className="flex-1 flex flex-col overflow-y-auto min-h-0" key={selectedUnitId}>
+          <div className="flex flex-col p-10 gap-12 animate-in fade-in slide-in-from-right-8 fill-mode-both duration-700">
+            <UnitDetailSection
+              selectedUnitId={selectedUnitId}
+              unitHealth={unitHealth}
+              activeAlerts={activeAlerts}
+              inspection={inspection}
+              forecast={forecast}
+              onClose={handleClose}
+            />
 
-          <EarlyWarningPanel forecast={forecast} anomalies={anomalies} />
+            <PhysicsDeviationPanel deviations={physicsDeviations} />
 
-          <AIAssistantPanel />
+            <EarlyWarningPanel forecast={forecast} anomalies={anomalies} />
+
+            <AIAssistantPanel />
+          </div>
         </div>
       )}
     </aside>

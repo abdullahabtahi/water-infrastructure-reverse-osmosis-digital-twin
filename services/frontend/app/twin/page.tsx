@@ -16,7 +16,7 @@ export default function TwinPage() {
       style={{ gridTemplateColumns: `1fr auto ${isOpen ? '400px' : '0px'}` }}
     >
       {/* Center Column - Main Content Area */}
-      <div className="flex flex-col overflow-y-auto relative border-r border-white/5">
+      <div className="flex flex-col overflow-y-auto relative border-r border-white/5 min-h-0">
         <div className="flex-none px-8 pt-4 pb-8">
           <PlantScene />
         </div>
@@ -32,7 +32,7 @@ export default function TwinPage() {
       </div>
 
       {/* Right Column - Inspection Drawer */}
-      <div className="relative">
+      <div className="relative min-h-0">
         <InspectionDrawer />
       </div>
 

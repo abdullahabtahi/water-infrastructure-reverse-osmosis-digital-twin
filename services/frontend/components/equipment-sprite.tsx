@@ -37,6 +37,7 @@ export function EquipmentSprite({ unit, id, label, imageSrc, className, isDefaul
           src={imageSrc}
           alt={label}
           fill
+          sizes="220px"
           className="object-contain group-hover:scale-[1.03] transition-transform duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] mix-blend-multiply"
         />
       </div>

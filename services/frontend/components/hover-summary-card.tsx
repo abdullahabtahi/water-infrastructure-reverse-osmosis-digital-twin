@@ -25,9 +25,7 @@ export function HoverSummaryCard({ unit, children }: HoverSummaryCardProps) {
 
   return (
     <Tooltip>
-      <TooltipTrigger>
-        {children}
-      </TooltipTrigger>
+      <TooltipTrigger render={children as React.ReactElement} />
       <TooltipContent side="top" className="bg-white border border-border/40 shadow-[0_8px_30px_rgba(0,0,0,0.12)] rounded-[16px] p-4 flex flex-col gap-3 min-w-[200px]" sideOffset={12}>
         <div className="flex flex-col gap-1">
           <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-extrabold">Hover Summary</span>
